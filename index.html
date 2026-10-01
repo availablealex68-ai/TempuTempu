@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 11933880
-}
-self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taskesy Temp Mail</title>
@@ -178,7 +172,6 @@ importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
 
         document.addEventListener("DOMContentLoaded", initApp);
 
-        // --- Custom Toast Notification ---
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -191,13 +184,11 @@ importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
             
             container.appendChild(toast);
             
-            // Animate In
             setTimeout(() => {
                 toast.classList.remove('translate-y-[-100%]', 'opacity-0');
                 toast.classList.add('translate-y-0', 'opacity-100');
             }, 10);
             
-            // Animate Out
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-[-100%]', 'opacity-0');
@@ -360,7 +351,6 @@ importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
                 const bodyText = em.body || '';
                 document.getElementById('detailBody').innerHTML = bodyText ? escapeHTML(bodyText) : '<i>(Empty Message)</i>';
                 
-                // OTP Extractor Logic (Finds 6 or 8 consecutive digits bounded by word boundaries)
                 const otpMatch = bodyText.match(/\b\d{6}\b|\b\d{8}\b/);
                 const otpContainer = document.getElementById('otpContainer');
                 
@@ -433,6 +423,21 @@ importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
             } catch(e) {
                 return dateString;
             }
+        }
+    </script>
+    
+    <!-- Monetag Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('Monetag Service Worker Registered!');
+                    })
+                    .catch(function(err) {
+                        console.log('Service Worker Registration Failed: ', err);
+                    });
+            });
         }
     </script>
 </body>
