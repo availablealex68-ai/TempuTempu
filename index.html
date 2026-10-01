@@ -66,7 +66,8 @@
                         <div><span class="text-slate-500 w-16 inline-block">To:</span> <span id="detailRecipient" class="font-medium text-slate-600"></span></div>
                         <div><span class="text-slate-500 w-16 inline-block">Date:</span> <span id="detailTime" class="text-slate-600"></span></div>
                     </div>
-                    <div id="detailBody" class="text-slate-700 whitespace-pre-wrap font-mono text-sm bg-slate-50 p-4 rounded"></div>
+                    <!-- Added whitespace-pre-line to format email body line breaks nicely -->
+                    <div id="detailBody" class="text-slate-700 whitespace-pre-line font-sans text-sm bg-slate-50 p-4 rounded border border-slate-100 min-h-[150px]"></div>
                 </div>
             </div>
 
@@ -114,18 +115,10 @@
                 }
             },
             
-            async getEmail(id) {
-                try {
-                    const res = await fetch(`${this.baseUrl}/api/email?id=${encodeURIComponent(id)}`);
-                    return await res.json();
-                } catch (err) {
-                    return { success: false, error: err.message };
-                }
-            },
-            
+            // Delete API URL Updated based on your worker code
             async deleteMailbox(address) {
                 try {
-                    const res = await fetch(`${this.baseUrl}/api/mailbox?address=${encodeURIComponent(address)}`, { 
+                    const res = await fetch(`${this.baseUrl}/api/delete?address=${encodeURIComponent(address)}`, { 
                         method: "DELETE",
                         headers: { "Accept": "application/json" }
                     });
@@ -141,6 +134,7 @@
         let countdownInterval = null;
         let pollingInterval = null;
         let seenEmailIds = new Set();
+        let loadedEmails = []; // Store emails directly from inbox
 
         document.addEventListener("DOMContentLoaded", initApp);
 
@@ -223,8 +217,10 @@
         async function fetchInbox() {
             if (!currentEmail) return;
             const response = await API.getInbox(currentEmail);
+            
             if (response.success && response.emails) {
-                renderInbox(response.emails);
+                loadedEmails = response.emails; // Store the full emails array
+                renderInbox(loadedEmails);
             }
         }
 
@@ -239,7 +235,11 @@
             }
 
             emptyState.classList.add('hidden');
-            emailItems.classList.remove('hidden');
+            
+            // Only update DOM if we are not currently viewing a single email
+            if(document.getElementById('emailDetailView').classList.contains('hidden')) {
+                emailItems.classList.remove('hidden');
+            }
             
             let listHTML = '';
             emails.forEach(email => {
@@ -265,32 +265,25 @@
             emailItems.innerHTML = listHTML;
         }
 
-        async function viewEmail(id) {
-            try {
-                document.getElementById('pollingIndicator').innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> লোড হচ্ছে...`;
-                document.getElementById('pollingIndicator').classList.remove('hidden');
+        // Updated viewEmail to use the pre-loaded data instead of making a new API call
+        function viewEmail(id) {
+            const em = loadedEmails.find(e => String(e.id) === String(id));
+            
+            if (em) {
+                const dateStr = em.received_at || em['received at'];
                 
-                const response = await API.getEmail(id);
+                document.getElementById('detailSubject').innerText = em.subject || '(No Subject)';
+                document.getElementById('detailSender').innerText = em.sender || 'Unknown';
+                document.getElementById('detailRecipient').innerText = em.recipient || currentEmail;
+                document.getElementById('detailTime').innerText = formatDate(dateStr);
                 
-                if (response.success && response.email) {
-                    const em = response.email;
-                    const dateStr = em.received_at || em['received at'];
-                    
-                    document.getElementById('detailSubject').innerText = em.subject || '(No Subject)';
-                    document.getElementById('detailSender').innerText = em.sender || 'Unknown';
-                    document.getElementById('detailRecipient').innerText = em.recipient || currentEmail;
-                    document.getElementById('detailTime').innerText = formatDate(dateStr);
-                    document.getElementById('detailBody').innerText = em.body || '';
-                    
-                    document.getElementById('inboxList').classList.add('hidden');
-                    document.getElementById('emailDetailView').classList.remove('hidden');
-                } else {
-                    alert("ইমেইল লোড করতে সমস্যা হয়েছে: " + (response.error || "API Error"));
-                }
-            } catch (err) {
-                alert("ইমেইল লোড করতে সমস্যা হয়েছে: " + err.message);
-            } finally {
-                document.getElementById('pollingIndicator').innerHTML = `<i class="fas fa-sync-alt fa-spin mr-1"></i> রিফ্রেশ হচ্ছে...`;
+                // Set body (Handling potential empty body)
+                document.getElementById('detailBody').innerHTML = em.body ? escapeHTML(em.body) : '<i>(Empty Message)</i>';
+                
+                document.getElementById('inboxList').classList.add('hidden');
+                document.getElementById('emailDetailView').classList.remove('hidden');
+            } else {
+                alert("ইমেইলটি খুঁজে পাওয়া যায়নি!");
             }
         }
 
@@ -311,6 +304,7 @@
                 
                 if (response.success) {
                     currentEmail = "";
+                    loadedEmails = [];
                     document.getElementById('emailAddress').innerText = "---";
                     document.getElementById('countdown').innerText = "00:00:00";
                     document.getElementById('emailItems').innerHTML = '';
@@ -325,7 +319,7 @@
                     showLoading(false);
                 }
             } catch (err) {
-                alert("ডিলিট করতে সমস্যা হয়েছে (Network/CORS): " + err.message);
+                alert("ডিলিট করতে সমস্যা হয়েছে (Network Error): " + err.message);
                 startPolling();
                 showLoading(false);
             }
