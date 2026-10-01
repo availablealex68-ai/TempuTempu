@@ -22,9 +22,9 @@
         
         <!-- Email Generation Box -->
         <div class="bg-white rounded-xl shadow-lg p-6 mb-8 text-center relative">
-            <div id="loadingEmail" class="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center rounded-xl z-10">
+            <div id="loadingEmail" class="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center rounded-xl z-10 hidden">
                 <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-500 mb-2"></i>
-                <p class="text-slate-500 font-medium">ইমেইল তৈরি হচ্ছে...</p>
+                <p class="text-slate-500 font-medium">প্রসেসিং হচ্ছে...</p>
             </div>
 
             <p class="text-sm text-slate-500 mb-2 font-semibold uppercase tracking-wider">আপনার অস্থায়ী ইমেইল ঠিকানা</p>
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- Email Detail View (Hidden by default) -->
+            <!-- Email Detail View -->
             <div id="emailDetailView" class="hidden p-6 border-b border-slate-200 bg-slate-50">
                 <button onclick="closeEmailDetail()" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 mb-4 flex items-center">
                     <i class="fas fa-arrow-left mr-1"></i> ইনবক্সে ফিরে যান
@@ -90,13 +90,15 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // API Configuration Module
         const API = {
             baseUrl: "https://taskesy-temp-mail.mdwldhsn336.workers.dev",
             
             async create() {
                 try {
-                    const res = await fetch(`${this.baseUrl}/api/create`, { method: "POST" });
+                    const res = await fetch(`${this.baseUrl}/api/create`, { 
+                        method: "POST",
+                        headers: { "Accept": "application/json" }
+                    });
                     return await res.json();
                 } catch (err) {
                     return { success: false, error: err.message };
@@ -114,7 +116,7 @@
             
             async getEmail(id) {
                 try {
-                    const res = await fetch(`${this.baseUrl}/api/email?id=${id}`);
+                    const res = await fetch(`${this.baseUrl}/api/email?id=${encodeURIComponent(id)}`);
                     return await res.json();
                 } catch (err) {
                     return { success: false, error: err.message };
@@ -123,7 +125,10 @@
             
             async deleteMailbox(address) {
                 try {
-                    const res = await fetch(`${this.baseUrl}/api/mailbox?address=${encodeURIComponent(address)}`, { method: "DELETE" });
+                    const res = await fetch(`${this.baseUrl}/api/mailbox?address=${encodeURIComponent(address)}`, { 
+                        method: "DELETE",
+                        headers: { "Accept": "application/json" }
+                    });
                     return await res.json();
                 } catch (err) {
                     return { success: false, error: err.message };
@@ -131,14 +136,12 @@
             }
         };
 
-        // Application State
         let currentEmail = "";
         let expiresAt = null;
         let countdownInterval = null;
         let pollingInterval = null;
         let seenEmailIds = new Set();
 
-        // Initialization
         document.addEventListener("DOMContentLoaded", initApp);
 
         async function initApp() {
@@ -162,8 +165,11 @@
 
         function showLoading(isLoading) {
             const loader = document.getElementById('loadingEmail');
-            if(isLoading) loader.classList.remove('hidden');
-            else loader.classList.add('hidden');
+            if(isLoading) {
+                loader.classList.remove('hidden');
+            } else {
+                loader.classList.add('hidden');
+            }
         }
 
         async function copyEmail() {
@@ -178,8 +184,8 @@
 
         function startCountdown() {
             if (countdownInterval) clearInterval(countdownInterval);
-            
             const countdownEl = document.getElementById('countdown');
+            countdownEl.classList.remove('text-red-500');
             
             countdownInterval = setInterval(() => {
                 const now = new Date().getTime();
@@ -205,8 +211,7 @@
         }
 
         function startPolling() {
-            fetchInbox(); // Initial fetch
-            // Poll every 8 seconds
+            fetchInbox();
             pollingInterval = setInterval(fetchInbox, 8000);
         }
 
@@ -217,9 +222,7 @@
 
         async function fetchInbox() {
             if (!currentEmail) return;
-            
             const response = await API.getInbox(currentEmail);
-            
             if (response.success && response.emails) {
                 renderInbox(response.emails);
             }
@@ -238,49 +241,57 @@
             emptyState.classList.add('hidden');
             emailItems.classList.remove('hidden');
             
-            emailItems.innerHTML = ''; // Clear list
-
+            let listHTML = '';
             emails.forEach(email => {
-                // Check if new email indicator is needed
                 const isNew = !seenEmailIds.has(email.id);
                 if(isNew) seenEmailIds.add(email.id);
 
-                const li = document.createElement('li');
-                li.className = `p-4 hover:bg-indigo-50 cursor-pointer transition-colors flex items-center justify-between ${isNew ? 'bg-blue-50/50 border-l-4 border-blue-500' : ''}`;
-                li.onclick = () => viewEmail(email.id);
+                const dateStr = email.received_at || email['received at'];
+                const subject = email.subject || '(No Subject)';
+                const sender = email.sender || 'Unknown Sender';
                 
-                li.innerHTML = `
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-sm font-semibold text-slate-800 truncate">${escapeHTML(email.sender)}</span>
-                            <span class="text-xs text-slate-500 whitespace-nowrap ml-4">${formatDate(email.received_at)}</span>
+                listHTML += `
+                    <li class="p-4 hover:bg-indigo-50 cursor-pointer transition-colors flex items-center justify-between ${isNew ? 'bg-blue-50/50 border-l-4 border-blue-500' : ''}" onclick="viewEmail('${email.id}')">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-semibold text-slate-800 truncate">${escapeHTML(sender)}</span>
+                                <span class="text-xs text-slate-500 whitespace-nowrap ml-4">${formatDate(dateStr)}</span>
+                            </div>
+                            <p class="text-sm font-medium text-slate-700 truncate">${escapeHTML(subject)}</p>
                         </div>
-                        <p class="text-sm font-medium text-slate-700 truncate">${escapeHTML(email.subject || '(No Subject)')}</p>
-                    </div>
+                    </li>
                 `;
-                emailItems.appendChild(li);
             });
+            emailItems.innerHTML = listHTML;
         }
 
         async function viewEmail(id) {
-            document.getElementById('pollingIndicator').innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> লোড হচ্ছে...`;
-            
-            const response = await API.getEmail(id);
-            
-            if (response.success && response.email) {
-                const em = response.email;
-                document.getElementById('detailSubject').innerText = em.subject || '(No Subject)';
-                document.getElementById('detailSender').innerText = em.sender;
-                document.getElementById('detailRecipient').innerText = em.recipient;
-                document.getElementById('detailTime').innerText = formatDate(em.received_at);
-                document.getElementById('detailBody').innerText = em.body;
+            try {
+                document.getElementById('pollingIndicator').innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> লোড হচ্ছে...`;
+                document.getElementById('pollingIndicator').classList.remove('hidden');
                 
-                document.getElementById('inboxList').classList.add('hidden');
-                document.getElementById('emailDetailView').classList.remove('hidden');
-            } else {
-                alert("ইমেইল লোড করতে সমস্যা হয়েছে।");
+                const response = await API.getEmail(id);
+                
+                if (response.success && response.email) {
+                    const em = response.email;
+                    const dateStr = em.received_at || em['received at'];
+                    
+                    document.getElementById('detailSubject').innerText = em.subject || '(No Subject)';
+                    document.getElementById('detailSender').innerText = em.sender || 'Unknown';
+                    document.getElementById('detailRecipient').innerText = em.recipient || currentEmail;
+                    document.getElementById('detailTime').innerText = formatDate(dateStr);
+                    document.getElementById('detailBody').innerText = em.body || '';
+                    
+                    document.getElementById('inboxList').classList.add('hidden');
+                    document.getElementById('emailDetailView').classList.remove('hidden');
+                } else {
+                    alert("ইমেইল লোড করতে সমস্যা হয়েছে: " + (response.error || "API Error"));
+                }
+            } catch (err) {
+                alert("ইমেইল লোড করতে সমস্যা হয়েছে: " + err.message);
+            } finally {
+                document.getElementById('pollingIndicator').innerHTML = `<i class="fas fa-sync-alt fa-spin mr-1"></i> রিফ্রেশ হচ্ছে...`;
             }
-            document.getElementById('pollingIndicator').innerHTML = `<i class="fas fa-sync-alt fa-spin mr-1"></i> রিফ্রেশ হচ্ছে...`;
         }
 
         function closeEmailDetail() {
@@ -295,38 +306,47 @@
             if (countdownInterval) clearInterval(countdownInterval);
             showLoading(true);
             
-            const response = await API.deleteMailbox(currentEmail);
-            
-            if (response.success) {
-                currentEmail = "";
-                document.getElementById('emailAddress').innerText = "---";
-                document.getElementById('countdown').innerText = "00:00:00";
-                document.getElementById('emailItems').innerHTML = '';
-                document.getElementById('emptyState').classList.remove('hidden');
-                document.getElementById('emailItems').classList.add('hidden');
-                closeEmailDetail();
+            try {
+                const response = await API.deleteMailbox(currentEmail);
                 
-                // Automatically create a new one after deletion
-                initApp();
-            } else {
-                alert("ডিলিট করতে সমস্যা হয়েছে।");
-                startPolling(); // resume polling if failed
+                if (response.success) {
+                    currentEmail = "";
+                    document.getElementById('emailAddress').innerText = "---";
+                    document.getElementById('countdown').innerText = "00:00:00";
+                    document.getElementById('emailItems').innerHTML = '';
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    document.getElementById('emailItems').classList.add('hidden');
+                    closeEmailDetail();
+                    
+                    initApp();
+                } else {
+                    alert("ডিলিট করতে সমস্যা হয়েছে: " + (response.error || "Backend/API Error"));
+                    startPolling();
+                    showLoading(false);
+                }
+            } catch (err) {
+                alert("ডিলিট করতে সমস্যা হয়েছে (Network/CORS): " + err.message);
+                startPolling();
                 showLoading(false);
             }
         }
 
-        // Utility functions
         function escapeHTML(str) {
             if (!str) return '';
-            return str.replace(/[&<>'"]/g, tag => ({
+            return String(str).replace(/[&<>'"]/g, tag => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
             }[tag]));
         }
 
         function formatDate(dateString) {
             if (!dateString) return '';
-            const d = new Date(dateString.replace(' ', 'T')); // Handle format if needed
-            return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            try {
+                const d = new Date(dateString.replace(' ', 'T'));
+                if (isNaN(d.getTime())) return dateString;
+                return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch(e) {
+                return dateString;
+            }
         }
     </script>
 </body>
