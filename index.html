@@ -16,6 +16,8 @@
         .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
@@ -23,19 +25,42 @@
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
 
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden transition-opacity opacity-0"></div>
+
+    <!-- Sidebar (Saved Emails) -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 transform sidebar-closed transition-transform duration-300 flex flex-col">
+        <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
+            <h2 class="font-extrabold text-indigo-800 text-lg"><i class="fas fa-list-ul mr-2"></i> আমার মেইলগুলো</h2>
+            <button onclick="toggleSidebar()" class="text-slate-500 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="flex-grow overflow-y-auto hide-scroll p-4">
+            <ul id="savedEmailsList" class="space-y-3">
+                <!-- Saved emails will be injected here -->
+            </ul>
+        </div>
+        <div class="p-4 border-t border-slate-100">
+            <button onclick="generateNewMailbox()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center">
+                <i class="fas fa-plus-circle mr-2"></i> নতুন মেইল তৈরি করুন
+            </button>
+        </div>
+    </div>
+
     <!-- Header -->
-    <header class="pt-8 pb-4">
-        <div class="container mx-auto px-4 text-center">
-            <div class="inline-flex items-center justify-center p-3 bg-white rounded-2xl shadow-sm mb-3">
-                <i class="fas fa-bolt text-2xl text-indigo-600"></i>
+    <header class="pt-6 pb-4 relative z-10">
+        <div class="container mx-auto px-4 flex items-center justify-between">
+            <button onclick="toggleSidebar()" class="w-12 h-12 bg-white rounded-2xl shadow-sm text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="text-center flex-1">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600">Taskesy Mail</h1>
             </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 mb-2">Taskesy Mail</h1>
-            <p class="text-slate-500 font-medium text-sm md:text-base">আধুনিক, সুরক্ষিত এবং অস্থায়ী ইনবক্স</p>
+            <div class="w-12 h-12"></div> <!-- Spacer for centering -->
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl">
+    <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl relative z-10">
         
         <!-- Email Generation Box -->
         <div class="glass-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 mb-8 text-center relative overflow-hidden">
@@ -48,7 +73,7 @@
                 <p class="text-slate-600 font-semibold mt-4">অপেক্ষা করুন...</p>
             </div>
 
-            <p class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">আপনার অস্থায়ী ঠিকানা</p>
+            <p class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">আপনার বর্তমান ঠিকানা</p>
             
             <div class="flex flex-col md:flex-row items-center justify-center gap-4 bg-white/50 p-3 pl-6 rounded-full border border-white shadow-sm mb-6 max-w-2xl mx-auto">
                 <span id="emailAddress" class="text-lg md:text-2xl font-bold text-slate-800 truncate w-full md:w-auto flex-1">---</span>
@@ -76,7 +101,7 @@
                     </span>
                     ইনবক্স
                 </h2>
-                <div id="pollingIndicator" class="text-xs font-semibold text-indigo-500 bg-indigo-50 px-3 py-1.5 rounded-full flex items-center">
+                <div id="pollingIndicator" class="text-xs font-semibold text-indigo-500 bg-indigo-50 px-3 py-1.5 rounded-full flex items-center hidden">
                     <i class="fas fa-circle-notch fa-spin mr-1.5"></i> সিঙ্ক হচ্ছে
                 </div>
             </div>
@@ -108,9 +133,7 @@
                         <h3 id="detailSubject" class="text-2xl font-extrabold mb-6 text-slate-800 leading-tight"></h3>
                         
                         <div class="flex items-center gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-sm" id="avatarInitial">
-                                S
-                            </div>
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-sm" id="avatarInitial">S</div>
                             <div class="flex-1 min-w-0">
                                 <div class="font-bold text-slate-800 truncate text-sm" id="detailSender"></div>
                                 <div class="text-xs text-slate-500 truncate mt-0.5">To: <span id="detailRecipient"></span></div>
@@ -143,21 +166,18 @@
     <script>
         const API = {
             baseUrl: "https://taskesy-temp-mail.mdwldhsn336.workers.dev",
-            
             async create() {
                 try {
                     const res = await fetch(`${this.baseUrl}/api/create`, { method: "POST", headers: { "Accept": "application/json" } });
                     return await res.json();
                 } catch (err) { return { success: false, error: err.message }; }
             },
-            
             async getInbox(address) {
                 try {
                     const res = await fetch(`${this.baseUrl}/api/inbox?address=${encodeURIComponent(address)}`);
                     return await res.json();
                 } catch (err) { return { success: false, error: err.message }; }
             },
-            
             async deleteMailbox(address) {
                 try {
                     const res = await fetch(`${this.baseUrl}/api/delete?address=${encodeURIComponent(address)}`, { method: "DELETE", headers: { "Accept": "application/json" } });
@@ -166,6 +186,8 @@
             }
         };
 
+        // State Management
+        let savedAccounts = JSON.parse(localStorage.getItem('taskesy_accounts')) || [];
         let currentEmail = "";
         let expiresAt = null;
         let countdownInterval = null;
@@ -179,7 +201,6 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            
             const colors = type === 'error' ? 'bg-red-600' : 'bg-slate-800';
             const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
             
@@ -187,33 +208,124 @@
             toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
             
             container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.remove('translate-y-[-100%]', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            }, 10);
-            
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-100%]', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+            setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('sidebar-closed')) {
+                sidebar.classList.remove('sidebar-closed');
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                renderSidebarList();
+            } else {
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('sidebar-closed');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
         }
 
         async function initApp() {
+            cleanupExpiredAccounts();
+            
+            if (savedAccounts.length > 0) {
+                // Load the most recent active account from LocalStorage
+                switchAccount(savedAccounts[0].address);
+            } else {
+                // No accounts, create a new one
+                generateNewMailbox();
+            }
+        }
+
+        async function generateNewMailbox() {
             showLoading(true);
             const response = await API.create();
             
             if (response.success) {
-                currentEmail = response.address;
-                expiresAt = new Date(response.expires_at).getTime();
-                document.getElementById('emailAddress').innerText = currentEmail;
-                startCountdown();
-                startPolling();
-                showLoading(false);
+                const newAccount = {
+                    address: response.address,
+                    expires_at: response.expires_at
+                };
+                
+                // Add to start of array and save
+                savedAccounts.unshift(newAccount);
+                localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
+                
+                if(!document.getElementById('sidebar').classList.contains('sidebar-closed')) {
+                    toggleSidebar(); // Close sidebar if open
+                }
+                
+                showToast("নতুন মেইলবক্স তৈরি হয়েছে!");
+                switchAccount(response.address);
             } else {
-                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে: " + (response.error || "Unknown Error"), 'error');
+                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে", 'error');
                 showLoading(false);
+            }
+        }
+
+        function switchAccount(address) {
+            const account = savedAccounts.find(acc => acc.address === address);
+            if (!account) return;
+
+            stopPolling();
+            closeEmailDetail();
+            
+            currentEmail = account.address;
+            expiresAt = new Date(account.expires_at).getTime();
+            
+            document.getElementById('emailAddress').innerText = currentEmail;
+            document.getElementById('emailItems').innerHTML = '';
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('emailItems').classList.add('hidden');
+            
+            seenEmailIds.clear();
+            loadedEmails = [];
+            
+            startCountdown();
+            startPolling();
+            showLoading(false);
+            
+            if(!document.getElementById('sidebar').classList.contains('sidebar-closed')) {
+                toggleSidebar(); 
+            }
+        }
+
+        function renderSidebarList() {
+            const listContainer = document.getElementById('savedEmailsList');
+            listContainer.innerHTML = '';
+            
+            cleanupExpiredAccounts(); // Ensure expired ones don't show up
+
+            savedAccounts.forEach(acc => {
+                const isActive = acc.address === currentEmail;
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-xl cursor-pointer border ${isActive ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100 hover:border-indigo-100 hover:bg-slate-50'} transition-all flex items-center justify-between`;
+                
+                li.innerHTML = `
+                    <div class="truncate flex-1 min-w-0" onclick="switchAccount('${acc.address}')">
+                        <p class="font-bold text-sm ${isActive ? 'text-indigo-700' : 'text-slate-700'} truncate">${acc.address}</p>
+                        <p class="text-xs text-slate-400 mt-1"><i class="fas fa-clock"></i> ${formatTimeOnly(acc.expires_at)} পর্যন্ত</p>
+                    </div>
+                `;
+                listContainer.appendChild(li);
+            });
+        }
+
+        function cleanupExpiredAccounts() {
+            const now = new Date().getTime();
+            const originalLength = savedAccounts.length;
+            
+            savedAccounts = savedAccounts.filter(acc => {
+                return new Date(acc.expires_at).getTime() > now;
+            });
+            
+            if (originalLength !== savedAccounts.length) {
+                localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
             }
         }
 
@@ -259,6 +371,10 @@
                     countdownEl.parentElement.classList.remove('text-indigo-700', 'bg-indigo-50/80', 'border-indigo-100');
                     countdownEl.parentElement.classList.add('text-red-600', 'bg-red-50', 'border-red-100');
                     stopPolling();
+                    
+                    // Auto remove from localstorage
+                    savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
+                    localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                     return;
                 }
 
@@ -266,10 +382,7 @@
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                countdownEl.innerText = 
-                    String(hours).padStart(2, '0') + ":" + 
-                    String(minutes).padStart(2, '0') + ":" + 
-                    String(seconds).padStart(2, '0');
+                countdownEl.innerText = String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
             }, 1000);
         }
 
@@ -285,12 +398,21 @@
 
         async function fetchInbox() {
             if (!currentEmail) return;
+            document.getElementById('pollingIndicator').classList.remove('hidden');
             const response = await API.getInbox(currentEmail);
             
             if (response.success && response.emails) {
                 loadedEmails = response.emails; 
                 renderInbox(loadedEmails);
+            } else if (response.error === "Mailbox expired") {
+                // If API says expired, remove from storage
+                savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
+                localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
+                stopPolling();
+                showToast("এই মেইলটির মেয়াদ শেষ হয়ে গেছে", "error");
             }
+            
+            setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
 
         function renderInbox(emails) {
@@ -341,7 +463,6 @@
 
         function viewEmail(id) {
             const em = loadedEmails.find(e => String(e.id) === String(id));
-            
             if (em) {
                 const dateStr = em.received_at || em['received at'];
                 const sender = em.sender || 'Unknown';
@@ -385,25 +506,16 @@
             if (countdownInterval) clearInterval(countdownInterval);
             
             try {
+                // Delete from Backend
                 const response = await API.deleteMailbox(currentEmail);
-                if (response.success) {
-                    currentEmail = "";
-                    loadedEmails = [];
-                    currentOTP = "";
-                    document.getElementById('emailAddress').innerText = "---";
-                    document.getElementById('countdown').innerText = "00:00:00";
-                    document.getElementById('emailItems').innerHTML = '';
-                    document.getElementById('emptyState').classList.remove('hidden');
-                    document.getElementById('emailItems').classList.add('hidden');
-                    closeEmailDetail();
-                    
-                    showToast("মেইলবক্স ডিলিট করা হয়েছে");
-                    initApp();
-                } else {
-                    showToast("ডিলিট করতে সমস্যা হয়েছে", 'error');
-                    startPolling();
-                    showLoading(false);
-                }
+                
+                // Always delete from LocalStorage even if backend fails (to keep UI clean)
+                savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
+                localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
+
+                showToast("মেইলবক্স মুছে ফেলা হয়েছে");
+                initApp(); // Restart process (will load next available or create new)
+                
             } catch (err) {
                 showToast("নেটওয়ার্ক সমস্যা", 'error');
                 startPolling();
@@ -424,9 +536,16 @@
                 const d = new Date(dateString.replace(' ', 'T'));
                 if (isNaN(d.getTime())) return dateString;
                 return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            } catch(e) {
-                return dateString;
-            }
+            } catch(e) { return dateString; }
+        }
+        
+        function formatTimeOnly(dateString) {
+            if (!dateString) return '';
+            try {
+                const d = new Date(dateString.replace(' ', 'T'));
+                if (isNaN(d.getTime())) return dateString;
+                return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
+            } catch(e) { return dateString; }
         }
     </script>
     
