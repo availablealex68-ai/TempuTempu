@@ -17,7 +17,8 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .sidebar-open { transform: translateX(0); }
-        .sidebar-closed { transform: translateX(-100%); }
+        /* Changed to 100% to hide on the right side */
+        .sidebar-closed { transform: translateX(100%); } 
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
@@ -25,13 +26,14 @@
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
 
-    <!-- Sidebar Overlay -->
-    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden transition-opacity opacity-0"></div>
+    <!-- Sidebar Overlay (Clicking here closes sidebar) -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden transition-opacity opacity-0 duration-300"></div>
 
-    <!-- Sidebar (Saved Emails) -->
-    <div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 transform sidebar-closed transition-transform duration-300 flex flex-col">
+    <!-- Sidebar (Saved Emails) - Moved to Right -->
+    <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl z-50 transform sidebar-closed transition-transform duration-300 flex flex-col">
         <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
             <h2 class="font-extrabold text-indigo-800 text-lg"><i class="fas fa-list-ul mr-2"></i> আমার মেইলগুলো</h2>
+            <!-- Close Button (X) -->
             <button onclick="toggleSidebar()" class="text-slate-500 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white"><i class="fas fa-times"></i></button>
         </div>
         <div class="flex-grow overflow-y-auto hide-scroll p-4">
@@ -49,13 +51,14 @@
     <!-- Header -->
     <header class="pt-6 pb-4 relative z-10">
         <div class="container mx-auto px-4 flex items-center justify-between">
-            <button onclick="toggleSidebar()" class="w-12 h-12 bg-white rounded-2xl shadow-sm text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center text-xl">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div class="w-12 h-12"></div> <!-- Spacer for centering -->
             <div class="text-center flex-1">
                 <h1 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600">Taskesy Mail</h1>
             </div>
-            <div class="w-12 h-12"></div> <!-- Spacer for centering -->
+            <!-- Hamburger Menu (3 lines) - Moved to Right -->
+            <button onclick="toggleSidebar()" class="w-12 h-12 bg-white rounded-2xl shadow-sm text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
@@ -186,7 +189,6 @@
             }
         };
 
-        // State Management
         let savedAccounts = JSON.parse(localStorage.getItem('taskesy_accounts')) || [];
         let currentEmail = "";
         let expiresAt = null;
@@ -212,17 +214,19 @@
             setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // Sidebar Toggle
+        // Sidebar Toggle Logic
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             if (sidebar.classList.contains('sidebar-closed')) {
+                // Open Sidebar
                 sidebar.classList.remove('sidebar-closed');
                 sidebar.classList.add('sidebar-open');
                 overlay.classList.remove('hidden');
                 setTimeout(() => overlay.classList.add('opacity-100'), 10);
                 renderSidebarList();
             } else {
+                // Close Sidebar
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('sidebar-closed');
                 overlay.classList.remove('opacity-100');
@@ -234,10 +238,8 @@
             cleanupExpiredAccounts();
             
             if (savedAccounts.length > 0) {
-                // Load the most recent active account from LocalStorage
                 switchAccount(savedAccounts[0].address);
             } else {
-                // No accounts, create a new one
                 generateNewMailbox();
             }
         }
@@ -252,12 +254,11 @@
                     expires_at: response.expires_at
                 };
                 
-                // Add to start of array and save
                 savedAccounts.unshift(newAccount);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                 
                 if(!document.getElementById('sidebar').classList.contains('sidebar-closed')) {
-                    toggleSidebar(); // Close sidebar if open
+                    toggleSidebar(); 
                 }
                 
                 showToast("নতুন মেইলবক্স তৈরি হয়েছে!");
@@ -299,7 +300,7 @@
             const listContainer = document.getElementById('savedEmailsList');
             listContainer.innerHTML = '';
             
-            cleanupExpiredAccounts(); // Ensure expired ones don't show up
+            cleanupExpiredAccounts(); 
 
             savedAccounts.forEach(acc => {
                 const isActive = acc.address === currentEmail;
@@ -372,7 +373,6 @@
                     countdownEl.parentElement.classList.add('text-red-600', 'bg-red-50', 'border-red-100');
                     stopPolling();
                     
-                    // Auto remove from localstorage
                     savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                     localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                     return;
@@ -405,7 +405,6 @@
                 loadedEmails = response.emails; 
                 renderInbox(loadedEmails);
             } else if (response.error === "Mailbox expired") {
-                // If API says expired, remove from storage
                 savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                 stopPolling();
@@ -506,15 +505,12 @@
             if (countdownInterval) clearInterval(countdownInterval);
             
             try {
-                // Delete from Backend
-                const response = await API.deleteMailbox(currentEmail);
-                
-                // Always delete from LocalStorage even if backend fails (to keep UI clean)
+                await API.deleteMailbox(currentEmail);
                 savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
 
                 showToast("মেইলবক্স মুছে ফেলা হয়েছে");
-                initApp(); // Restart process (will load next available or create new)
+                initApp(); 
                 
             } catch (err) {
                 showToast("নেটওয়ার্ক সমস্যা", 'error');
