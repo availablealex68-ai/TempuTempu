@@ -9,10 +9,21 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            padding-bottom: 90px; /* অ্যাডের জন্য নিচে ফাঁকা জায়গা */
+        }
         .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Force Ad networks to show banners at the bottom */
+        div[style*="position: fixed"][style*="top: 0"], 
+        div[style*="position:fixed"][style*="top:0"],
+        div[id^="monetag-"] {
+            top: auto !important;
+            bottom: 0 !important;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
@@ -23,11 +34,10 @@
     <!-- Sidebar Overlay -->
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
 
-    <!-- Sidebar (Saved Emails) - Right Side -->
+    <!-- Sidebar (Saved Emails) -->
     <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
             <h2 class="font-extrabold text-indigo-800 text-lg"><i class="fas fa-list-ul mr-2"></i> আমার মেইলগুলো</h2>
-            <!-- Close Button (X) -->
             <button onclick="toggleSidebar()" class="text-slate-500 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white bg-white shadow-sm">
                 <i class="fas fa-times"></i>
             </button>
@@ -37,22 +47,15 @@
                 <!-- Saved emails will be injected here -->
             </ul>
         </div>
-        <div class="p-4 border-t border-slate-100">
-            <!-- Manual Create Button (No Ad) -->
-            <button onclick="generateNewMailbox(true)" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center">
-                <i class="fas fa-plus-circle mr-2"></i> নতুন মেইল তৈরি করুন
-            </button>
-        </div>
     </div>
 
     <!-- Header -->
     <header class="pt-6 pb-4 relative z-10">
         <div class="container mx-auto px-4 flex items-center justify-between">
-            <div class="w-12 h-12"></div> <!-- Spacer -->
+            <div class="w-12 h-12"></div>
             <div class="text-center flex-1">
-                <h1 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600">Toxic Mail</h1>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-700">Toxic Mail</h1>
             </div>
-            <!-- Hamburger Menu (3 lines) - Right Side -->
             <button onclick="toggleSidebar()" class="w-12 h-12 bg-white rounded-2xl shadow-sm text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center text-xl relative z-30">
                 <i class="fas fa-bars"></i>
             </button>
@@ -64,7 +67,6 @@
         
         <!-- Email Generation Box -->
         <div class="glass-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 mb-8 text-center relative overflow-hidden">
-            <!-- Loading Overlay -->
             <div id="loadingEmail" class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 hidden transition-opacity duration-300">
                 <div class="relative w-16 h-16">
                     <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
@@ -75,27 +77,27 @@
 
             <p class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">আপনার বর্তমান ঠিকানা</p>
             
-            <div class="flex flex-col md:flex-row items-center justify-center gap-4 bg-white/50 p-3 pl-6 rounded-full border border-white shadow-sm mb-6 max-w-2xl mx-auto">
-                <span id="emailAddress" class="text-lg md:text-2xl font-bold text-slate-800 truncate w-full md:w-auto flex-1">---</span>
-                <button onclick="copyEmail()" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-3 rounded-full transition-all shadow-md hover:shadow-lg font-semibold text-sm flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-copy mr-2"></i> কপি
-                </button>
+            <!-- Email & Buttons Inline Layout -->
+            <div class="flex flex-col md:flex-row items-center justify-center gap-3 bg-white/50 p-3 pl-6 rounded-full border border-white shadow-sm mb-6 max-w-2xl mx-auto">
+                <span id="emailAddress" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full md:w-auto flex-1 text-center md:text-left">---</span>
+                
+                <div class="flex items-center gap-2 w-full md:w-auto justify-center">
+                    <button onclick="copyEmail()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg font-semibold text-sm flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-copy mr-2"></i> কপি
+                    </button>
+                    <button onclick="generateNewMailbox()" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-5 py-2.5 rounded-full transition-all shadow-sm hover:shadow-md font-bold text-sm flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-plus mr-1.5"></i> Get Mail
+                    </button>
+                </div>
             </div>
             
-            <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-sm mb-6">
+            <!-- Timer & Delete -->
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-sm mb-2">
                 <div class="flex items-center text-indigo-700 font-semibold bg-indigo-50/80 px-5 py-2 rounded-full border border-indigo-100">
                     <i class="fas fa-stopwatch mr-2 text-indigo-500"></i> মেয়াদ: <span id="countdown" class="ml-1 tracking-wider">00:00:00</span>
                 </div>
-                <!-- Delete current active mailbox -->
                 <button onclick="deleteSpecificMailbox(currentEmail)" class="text-slate-500 hover:text-red-500 font-semibold flex items-center transition-colors px-4 py-2 rounded-full hover:bg-red-50">
                     <i class="fas fa-trash-alt mr-2"></i> মেইলবক্স মুছুন
-                </button>
-            </div>
-
-            <!-- New Get Mail Button -->
-            <div class="border-t border-slate-100 pt-5 mt-2">
-                <button onclick="manualGetMail()" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white font-bold px-8 py-3 rounded-xl transition-all shadow-sm hover:shadow-md flex items-center justify-center mx-auto">
-                    <i class="fas fa-sync-alt mr-2"></i> Get Mail
                 </button>
             </div>
         </div>
@@ -115,7 +117,6 @@
             </div>
 
             <div class="relative flex-grow overflow-hidden">
-                <!-- Email Detail View -->
                 <div id="emailDetailView" class="hidden absolute inset-0 bg-white/90 backdrop-blur-md z-20 flex flex-col">
                     <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0">
                         <button onclick="closeEmailDetail()" class="w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
@@ -126,7 +127,6 @@
                     </div>
                     
                     <div class="p-6 overflow-y-auto hide-scroll flex-grow">
-                        <!-- OTP Bubble -->
                         <div id="otpContainer" class="hidden mb-8 flex justify-center">
                             <button onclick="copyOTP()" class="group relative bg-gradient-to-r from-amber-400 to-orange-500 p-[2px] rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
                                 <div class="bg-white rounded-full px-8 py-3 flex items-center gap-3">
@@ -153,9 +153,7 @@
                     </div>
                 </div>
 
-                <!-- Email List -->
                 <div id="inboxList" class="absolute inset-0 overflow-y-auto hide-scroll">
-                    <!-- Empty State -->
                     <div id="emptyState" class="flex flex-col items-center justify-center h-full text-slate-400 px-6 text-center">
                         <div class="w-24 h-24 bg-white rounded-full shadow-sm flex items-center justify-center mb-6">
                             <i class="fas fa-envelope-open-text text-4xl text-indigo-200"></i>
@@ -163,14 +161,12 @@
                         <p class="font-bold text-xl text-slate-700 mb-2">ইনবক্স খালি</p>
                         <p class="text-sm">এখানে আপনার নতুন ইমেইলগুলো দেখা যাবে। আমরা স্বয়ংক্রিয়ভাবে ইনবক্স সিঙ্ক করছি।</p>
                     </div>
-                    <!-- List container -->
                     <ul id="emailItems" class="divide-y divide-slate-100/50 hidden"></ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- JavaScript Application Logic -->
     <script>
         const API = {
             baseUrl: "https://taskesy-temp-mail.mdwldhsn336.workers.dev",
@@ -219,7 +215,6 @@
             setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // Sidebar Toggle Logic
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -236,44 +231,35 @@
                 sidebar.classList.remove('translate-x-0');
                 sidebar.classList.add('translate-x-full');
                 overlay.classList.remove('opacity-100');
-                setTimeout(() => {
-                    overlay.classList.add('hidden');
-                }, 300);
+                setTimeout(() => { overlay.classList.add('hidden'); }, 300);
             }
         }
 
         async function initApp() {
             cleanupExpiredAccounts();
-            
             if (savedAccounts.length > 0) {
                 switchAccount(savedAccounts[0].address);
             } else {
-                generateNewMailbox(false);
+                generateNewMailbox();
             }
         }
 
-        async function generateNewMailbox(isManual = false) {
+        async function generateNewMailbox() {
             showLoading(true);
             const response = await API.create();
             
             if (response.success) {
-                const newAccount = {
-                    address: response.address,
-                    expires_at: response.expires_at
-                };
+                const newAccount = { address: response.address, expires_at: response.expires_at };
                 
+                // Add new mail to saved accounts list (sidebar)
                 savedAccounts.unshift(newAccount);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
-                
-                const sidebar = document.getElementById('sidebar');
-                if(!sidebar.classList.contains('translate-x-full')) {
-                    toggleSidebar(); 
-                }
                 
                 showToast("নতুন মেইলবক্স তৈরি হয়েছে!");
                 switchAccount(response.address);
             } else {
-                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে", 'error');
+                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে! Worker Code চেক করুন।", 'error');
+                document.getElementById('emailAddress').innerText = "Error";
                 showLoading(false);
             }
         }
@@ -299,17 +285,11 @@
             startCountdown();
             startPolling();
             showLoading(false);
-            
-            const sidebar = document.getElementById('sidebar');
-            if(!sidebar.classList.contains('translate-x-full')) {
-                toggleSidebar(); 
-            }
         }
 
         function renderSidebarList() {
             const listContainer = document.getElementById('savedEmailsList');
             listContainer.innerHTML = '';
-            
             cleanupExpiredAccounts(); 
 
             savedAccounts.forEach(acc => {
@@ -318,7 +298,7 @@
                 li.className = `p-3 rounded-xl cursor-pointer border ${isActive ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100 hover:border-indigo-100 hover:bg-slate-50'} transition-all flex items-center justify-between group`;
                 
                 li.innerHTML = `
-                    <div class="truncate flex-1 min-w-0" onclick="switchAccount('${acc.address}')">
+                    <div class="truncate flex-1 min-w-0" onclick="switchAccount('${acc.address}'); toggleSidebar();">
                         <p class="font-bold text-sm ${isActive ? 'text-indigo-700' : 'text-slate-700'} truncate">${acc.address}</p>
                         <p class="text-xs text-slate-400 mt-1"><i class="fas fa-clock"></i> ${formatTimeOnly(acc.expires_at)} পর্যন্ত</p>
                     </div>
@@ -333,11 +313,7 @@
         function cleanupExpiredAccounts() {
             const now = new Date().getTime();
             const originalLength = savedAccounts.length;
-            
-            savedAccounts = savedAccounts.filter(acc => {
-                return new Date(acc.expires_at).getTime() > now;
-            });
-            
+            savedAccounts = savedAccounts.filter(acc => new Date(acc.expires_at).getTime() > now);
             if (originalLength !== savedAccounts.length) {
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
             }
@@ -350,13 +326,11 @@
         }
 
         async function copyEmail() {
-            if (!currentEmail) return;
+            if (!currentEmail || currentEmail === 'Error') return;
             try {
                 await navigator.clipboard.writeText(currentEmail);
                 showToast("ইমেইল ঠিকানা কপি করা হয়েছে!");
-            } catch (err) {
-                showToast("কপি করতে সমস্যা হয়েছে", 'error');
-            }
+            } catch (err) { showToast("কপি করতে সমস্যা হয়েছে", 'error'); }
         }
 
         async function copyOTP() {
@@ -364,9 +338,7 @@
             try {
                 await navigator.clipboard.writeText(currentOTP);
                 showToast("OTP কোড কপি করা হয়েছে!");
-            } catch (err) {
-                showToast("কপি করতে সমস্যা হয়েছে", 'error');
-            }
+            } catch (err) { showToast("কপি করতে সমস্যা হয়েছে", 'error'); }
         }
 
         function startCountdown() {
@@ -385,7 +357,6 @@
                     countdownEl.parentElement.classList.remove('text-indigo-700', 'bg-indigo-50/80', 'border-indigo-100');
                     countdownEl.parentElement.classList.add('text-red-600', 'bg-red-50', 'border-red-100');
                     stopPolling();
-                    
                     savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                     localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                     return;
@@ -394,7 +365,6 @@
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
                 countdownEl.innerText = String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
             }, 1000);
         }
@@ -408,16 +378,9 @@
             if (pollingInterval) clearInterval(pollingInterval);
             document.getElementById('pollingIndicator').classList.add('hidden');
         }
-        
-        // Manual get mail function
-        function manualGetMail() {
-            if(!currentEmail) return;
-            showToast("ইনবক্স চেক করা হচ্ছে...");
-            fetchInbox();
-        }
 
         async function fetchInbox() {
-            if (!currentEmail) return;
+            if (!currentEmail || currentEmail === 'Error') return;
             document.getElementById('pollingIndicator').classList.remove('hidden');
             const response = await API.getInbox(currentEmail);
             
@@ -430,7 +393,6 @@
                 stopPolling();
                 showToast("এই মেইলটির মেয়াদ শেষ হয়ে গেছে", "error");
             }
-            
             setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
 
@@ -452,9 +414,7 @@
             let listHTML = '';
             emails.forEach(email => {
                 const isNew = !seenEmailIds.has(email.id);
-                if(isNew && document.getElementById('emailItems').innerHTML !== '') {
-                    showToast("নতুন ইমেইল এসেছে!");
-                }
+                if(isNew && document.getElementById('emailItems').innerHTML !== '') showToast("নতুন ইমেইল এসেছে!");
                 seenEmailIds.add(email.id);
 
                 const dateStr = email.received_at || email['received at'];
@@ -464,9 +424,7 @@
                 
                 listHTML += `
                     <li class="p-4 hover:bg-white/80 cursor-pointer transition-all flex items-center gap-4 ${isNew ? 'bg-indigo-50/50 border-l-4 border-indigo-500' : 'bg-transparent'}" onclick="viewEmail('${email.id}')">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold flex-shrink-0">
-                            ${initial}
-                        </div>
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold flex-shrink-0">${initial}</div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-sm font-extrabold text-slate-800 truncate">${escapeHTML(sender)}</span>
@@ -509,9 +467,7 @@
                 
                 document.getElementById('inboxList').classList.add('hidden');
                 document.getElementById('emailDetailView').classList.remove('hidden');
-            } else {
-                showToast("ইমেইলটি খুঁজে পাওয়া যায়নি!", 'error');
-            }
+            } else { showToast("ইমেইলটি খুঁজে পাওয়া যায়নি!", 'error'); }
         }
 
         function closeEmailDetail() {
@@ -521,29 +477,22 @@
 
         async function deleteSpecificMailbox(address, event = null) {
             if(event) event.stopPropagation(); 
-            
             if (!confirm("আপনি কি নিশ্চিত যে এই মেইলবক্সটি ডিলিট করতে চান?")) return;
             
             showLoading(true);
-            
             try {
                 await API.deleteMailbox(address);
                 savedAccounts = savedAccounts.filter(acc => acc.address !== address);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
-
                 showToast("মেইলবক্স মুছে ফেলা হয়েছে");
                 
                 if (address === currentEmail) {
-                    if (savedAccounts.length > 0) {
-                        switchAccount(savedAccounts[0].address);
-                    } else {
-                        generateNewMailbox(false);
-                    }
+                    if (savedAccounts.length > 0) switchAccount(savedAccounts[0].address);
+                    else generateNewMailbox();
                 } else {
                     renderSidebarList();
                     showLoading(false);
                 }
-                
             } catch (err) {
                 showToast("নেটওয়ার্ক সমস্যা", 'error');
                 showLoading(false);
@@ -552,9 +501,7 @@
 
         function escapeHTML(str) {
             if (!str) return '';
-            return String(str).replace(/[&<>'"]/g, tag => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-            }[tag]));
+            return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
 
         function formatDate(dateString) {
@@ -576,22 +523,15 @@
         }
     </script>
     
-    <!-- Monetag Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('Monetag Service Worker Registered!');
-                    })
-                    .catch(function(err) {
-                        console.log('Service Worker Registration Failed: ', err);
-                    });
+                navigator.serviceWorker.register('/sw.js').catch(function(err) {});
             });
         }
     </script>
 
-    <!-- Monetag Banner Ad Code (Placed at the bottom) -->
+    <!-- Monetag Banner Ad Code -->
     <script>(function(s){s.dataset.zone='11934216',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
