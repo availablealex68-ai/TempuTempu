@@ -8,16 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Monetag Rewarded Ad Script (আপনার ড্যাশবোর্ড থেকে পাওয়া 11942440 জোনের স্ক্রিপ্ট ট্যাগটি এখানে বসাতে পারেন, যদি আগে থেকে না বসানো থাকে) -->
+    
     <style>
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            padding-bottom: 90px; /* অ্যাডের জন্য নিচে ফাঁকা জায়গা */
+            padding-bottom: 90px; 
         }
         .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Force Ad networks to show banners at the bottom */
         div[style*="position: fixed"][style*="top: 0"], 
         div[style*="position:fixed"][style*="top:0"],
         div[id^="monetag-"] {
@@ -28,13 +30,10 @@
 </head>
 <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
 
-    <!-- Sidebar Overlay -->
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
 
-    <!-- Sidebar (Saved Emails) -->
     <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
             <h2 class="font-extrabold text-indigo-800 text-lg"><i class="fas fa-list-ul mr-2"></i> আমার মেইলগুলো</h2>
@@ -43,13 +42,10 @@
             </button>
         </div>
         <div class="flex-grow overflow-y-auto hide-scroll p-4">
-            <ul id="savedEmailsList" class="space-y-3">
-                <!-- Saved emails will be injected here -->
-            </ul>
+            <ul id="savedEmailsList" class="space-y-3"></ul>
         </div>
     </div>
 
-    <!-- Header -->
     <header class="pt-6 pb-4 relative z-10">
         <div class="container mx-auto px-4 flex items-center justify-between">
             <div class="w-12 h-12"></div>
@@ -62,10 +58,7 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl relative z-10">
-        
-        <!-- Email Generation Box -->
         <div class="glass-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 mb-8 text-center relative overflow-hidden">
             <div id="loadingEmail" class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 hidden transition-opacity duration-300">
                 <div class="relative w-16 h-16">
@@ -77,7 +70,6 @@
 
             <p class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">আপনার বর্তমান ঠিকানা</p>
             
-            <!-- Email & Buttons Inline Layout -->
             <div class="flex flex-col md:flex-row items-center justify-center gap-3 bg-white/50 p-3 pl-6 rounded-full border border-white shadow-sm mb-6 max-w-2xl mx-auto">
                 <span id="emailAddress" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full md:w-auto flex-1 text-center md:text-left">---</span>
                 
@@ -91,7 +83,6 @@
                 </div>
             </div>
             
-            <!-- Timer & Delete -->
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-sm mb-2">
                 <div class="flex items-center text-indigo-700 font-semibold bg-indigo-50/80 px-5 py-2 rounded-full border border-indigo-100">
                     <i class="fas fa-stopwatch mr-2 text-indigo-500"></i> মেয়াদ: <span id="countdown" class="ml-1 tracking-wider">00:00:00</span>
@@ -102,7 +93,6 @@
             </div>
         </div>
 
-        <!-- Inbox Section -->
         <div class="glass-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col h-[500px]">
             <div class="bg-white/50 border-b border-white/60 p-5 flex justify-between items-center backdrop-blur-md sticky top-0 z-10">
                 <h2 class="text-lg font-extrabold text-slate-800 flex items-center">
@@ -240,18 +230,36 @@
             if (savedAccounts.length > 0) {
                 switchAccount(savedAccounts[0].address);
             } else {
-                generateNewMailbox();
+                // প্রথমবার ইউজার ভিজিট করলে কোনো Ad ছাড়াই মেইল জেনারেট হবে (ব্রাউজার পপআপ ব্লক এড়াতে)
+                fetchNewMail();
             }
         }
 
+        // Get Mail বাটনে ক্লিক করলে এই ফাংশনটি কল হবে
         async function generateNewMailbox() {
+            if (typeof show_11942440 === 'function') {
+                // Monetag Rewarded Ad Call
+                show_11942440('pop').then(() => {
+                    // ইউজার Ad শেষ পর্যন্ত দেখলে মেইল জেনারেট হবে
+                    fetchNewMail();
+                }).catch(e => {
+                    // ইউজার Ad স্কিপ করলে বা কেটে দিলে
+                    showToast("নতুন মেইল পেতে হলে Ad টি সম্পূর্ণ দেখতে হবে!", 'error');
+                });
+            } else {
+                // যদি Ad Blocker এর কারণে স্ক্রিপ্ট লোড না হয়, সরাসরি মেইল দিয়ে দিবে
+                fetchNewMail();
+            }
+        }
+
+        // মেইল তৈরি করার মূল লজিকটি আলাদা করা হয়েছে
+        async function fetchNewMail() {
             showLoading(true);
             const response = await API.create();
             
             if (response.success) {
                 const newAccount = { address: response.address, expires_at: response.expires_at };
                 
-                // Add new mail to saved accounts list (sidebar)
                 savedAccounts.unshift(newAccount);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                 
@@ -488,7 +496,7 @@
                 
                 if (address === currentEmail) {
                     if (savedAccounts.length > 0) switchAccount(savedAccounts[0].address);
-                    else generateNewMailbox();
+                    else fetchNewMail();
                 } else {
                     renderSidebarList();
                     showLoading(false);
@@ -531,6 +539,7 @@
         }
     </script>
 
-  
+    <!-- Monetag Banner Ad Code -->
+    <script>(function(s){s.dataset.zone='11934216',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
