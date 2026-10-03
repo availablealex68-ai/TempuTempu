@@ -11,25 +11,67 @@
     <style>
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
+            transition: background 0.8s ease-in-out;
         }
-        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        /* Premium Glassmorphism */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.55); 
+            backdrop-filter: blur(24px) saturate(180%); 
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.7); 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Smooth List Animations */
+        .animate-mail-in {
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .theme-btn { transition: transform 0.2s; }
+        .theme-btn:hover { transform: scale(1.15); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+<body id="appBody" class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 antialiased min-h-screen flex flex-col relative overflow-x-hidden transition-colors duration-700">
+
+    <!-- Custom Colorful Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-opacity opacity-0" id="confirmOverlay" onclick="closeConfirmModal()"></div>
+        <div class="relative bg-white/80 backdrop-blur-xl border border-white shadow-2xl rounded-[2rem] p-8 w-11/12 max-w-sm transform scale-95 opacity-0 transition-all duration-300 ease-out" id="confirmContent">
+            <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-rose-100 to-red-50 text-rose-500 flex items-center justify-center mx-auto mb-5 shadow-inner border border-white">
+                    <i class="fas fa-trash-alt text-3xl drop-shadow-sm"></i>
+                </div>
+                <h3 class="text-2xl font-extrabold text-slate-800 mb-2">মেইলবক্স ডিলিট?</h3>
+                <p class="text-sm text-slate-500 mb-8 px-2 leading-relaxed">আপনি কি নিশ্চিত যে এই মেইলবক্সটি ডিলিট করতে চান? ডিলিট করলে এটি আর ফেরত পাওয়া যাবে না।</p>
+                <div class="flex gap-4">
+                    <button onclick="closeConfirmModal()" class="flex-1 glass-btn hover:bg-white text-slate-600 font-bold py-3.5 rounded-2xl transition-all shadow-sm">বাতিল</button>
+                    <button onclick="confirmDeleteAction()" class="flex-1 bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-rose-200 transition-all transform hover:-translate-y-0.5">ডিলিট করুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
+    <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[90] flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
 
     <!-- Sidebar Overlay -->
-    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
 
-    <!-- Sidebar (Saved Emails) - Right Side -->
-    <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
-        <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-indigo-50">
-            <h2 class="font-extrabold text-indigo-800 text-lg"><i class="fas fa-list-ul mr-2"></i> আমার মেইলগুলো</h2>
-            <button onclick="toggleSidebar()" class="text-slate-500 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white bg-white shadow-sm">
+    <!-- Sidebar (Saved Emails) -->
+    <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white/90 backdrop-blur-2xl shadow-2xl border-l border-white/50 z-50 transform translate-x-full transition-transform duration-400 ease-out flex flex-col">
+        <div class="p-6 border-b border-slate-100/50 flex justify-between items-center">
+            <h2 class="font-extrabold text-slate-800 text-lg"><i class="fas fa-layer-group mr-2 text-indigo-500"></i> হিস্ট্রি</h2>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-rose-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -40,16 +82,26 @@
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="pt-6 pb-4 relative z-10">
-        <div class="container mx-auto px-4 flex items-center justify-between">
-            <div class="w-12 h-12"></div> <!-- Spacer -->
-            <div class="text-center flex-1">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-700">Toxic Mail</h1>
+    <!-- Header & Theme Switcher -->
+    <header class="pt-6 pb-2 relative z-10">
+        <div class="container mx-auto px-4 flex flex-col items-center justify-center relative">
+            <!-- Glass Theme Pickers -->
+            <div class="flex gap-3 mb-4 glass-card px-4 py-2 rounded-full">
+                <button onclick="setTheme('default')" class="theme-btn w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 shadow-md border-2 border-white"></button>
+                <button onclick="setTheme('ocean')" class="theme-btn w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 shadow-md border-2 border-white"></button>
+                <button onclick="setTheme('forest')" class="theme-btn w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md border-2 border-white"></button>
+                <button onclick="setTheme('sunset')" class="theme-btn w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 shadow-md border-2 border-white"></button>
             </div>
-            <button onclick="toggleSidebar()" class="w-12 h-12 bg-white rounded-2xl shadow-sm text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center text-xl relative z-30">
-                <i class="fas fa-bars"></i>
-            </button>
+            
+            <div class="flex items-center justify-between w-full">
+                <div class="w-12 h-12"></div>
+                <div class="text-center flex-1">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight drop-shadow-sm">Toxic Mail</h1>
+                </div>
+                <button onclick="toggleSidebar()" class="w-12 h-12 glass-btn rounded-2xl shadow-sm text-slate-700 hover:text-indigo-600 transition-colors flex items-center justify-center text-xl relative z-30">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -57,71 +109,69 @@
     <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl relative z-10">
         
         <!-- Email Generation Box -->
-        <div class="glass-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 mb-8 text-center relative overflow-hidden">
-            <div id="loadingEmail" class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-10 hidden transition-opacity duration-300">
+        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500">
+            <div id="loadingEmail" class="absolute inset-0 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center z-10 hidden transition-opacity duration-300">
                 <div class="relative w-16 h-16">
-                    <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
-                    <div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+                    <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
                 </div>
-                <p class="text-slate-600 font-semibold mt-4">অপেক্ষা করুন...</p>
+                <p class="text-slate-600 font-bold mt-4 tracking-wide">অপেক্ষা করুন...</p>
             </div>
 
-            <p class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">আপনার বর্তমান ঠিকানা</p>
+            <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">আপনার বর্তমান ঠিকানা</p>
             
-            <!-- Email & Buttons Inline Layout -->
-            <div class="flex flex-col md:flex-row items-center justify-center gap-3 bg-white/50 p-3 pl-6 rounded-full border border-white shadow-sm mb-6 max-w-2xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-3 glass-btn p-3 pl-6 rounded-full shadow-sm mb-6 max-w-2xl mx-auto">
                 <span id="emailAddress" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full md:w-auto flex-1 text-center md:text-left">---</span>
                 
                 <div class="flex items-center gap-2 w-full md:w-auto justify-center">
-                    <button onclick="copyEmail()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg font-semibold text-sm flex items-center justify-center flex-shrink-0">
+                    <button onclick="copyEmail()" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-full transition-all shadow-md font-semibold text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-copy mr-2"></i> কপি
                     </button>
-                    <button onclick="generateNewMailbox()" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-5 py-2.5 rounded-full transition-all shadow-sm hover:shadow-md font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    <button onclick="generateNewMailbox()" class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-5 py-2.5 rounded-full transition-all shadow-md font-bold text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-plus mr-1.5"></i> Get Mail
                     </button>
                 </div>
             </div>
             
-            <!-- Timer & Delete -->
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-sm mb-2">
-                <div class="flex items-center text-indigo-700 font-semibold bg-indigo-50/80 px-5 py-2 rounded-full border border-indigo-100">
-                    <i class="fas fa-stopwatch mr-2 text-indigo-500"></i> মেয়াদ: <span id="countdown" class="ml-1 tracking-wider">00:00:00</span>
+                <div class="flex items-center text-slate-700 font-semibold glass-btn px-5 py-2 rounded-full">
+                    <i class="fas fa-stopwatch mr-2 text-indigo-500"></i> মেয়াদ: <span id="countdown" class="ml-1 tracking-wider font-bold">00:00:00</span>
                 </div>
-                <button onclick="deleteSpecificMailbox(currentEmail)" class="text-slate-500 hover:text-red-500 font-semibold flex items-center transition-colors px-4 py-2 rounded-full hover:bg-red-50">
+                <button onclick="triggerDelete(currentEmail)" class="text-slate-500 hover:text-rose-500 font-bold flex items-center transition-colors px-4 py-2 rounded-full hover:bg-white/50">
                     <i class="fas fa-trash-alt mr-2"></i> মেইলবক্স মুছুন
                 </button>
             </div>
         </div>
 
         <!-- Inbox Section -->
-        <div class="glass-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col h-[500px]">
-            <div class="bg-white/50 border-b border-white/60 p-5 flex justify-between items-center backdrop-blur-md sticky top-0 z-10">
+        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px]">
+            <div class="border-b border-white/40 p-5 flex justify-between items-center sticky top-0 z-10">
                 <h2 class="text-lg font-extrabold text-slate-800 flex items-center">
-                    <span class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 text-sm">
-                        <i class="fas fa-inbox"></i>
+                    <span class="w-10 h-10 rounded-full glass-btn text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
+                        <i class="fas fa-inbox text-lg"></i>
                     </span>
                     ইনবক্স
                 </h2>
-                <div id="pollingIndicator" class="text-xs font-semibold text-indigo-500 bg-indigo-50 px-3 py-1.5 rounded-full flex items-center hidden">
-                    <i class="fas fa-circle-notch fa-spin mr-1.5"></i> সিঙ্ক হচ্ছে
+                <div id="pollingIndicator" class="text-xs font-bold text-indigo-600 glass-btn px-4 py-2 rounded-full flex items-center hidden shadow-sm">
+                    <i class="fas fa-circle-notch fa-spin mr-2"></i> সিঙ্ক হচ্ছে...
                 </div>
             </div>
 
             <div class="relative flex-grow overflow-hidden">
                 <!-- Email Detail View -->
-                <div id="emailDetailView" class="hidden absolute inset-0 bg-white/90 backdrop-blur-md z-20 flex flex-col">
-                    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0">
-                        <button onclick="closeEmailDetail()" class="w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
+                <div id="emailDetailView" class="hidden absolute inset-0 bg-white/60 backdrop-blur-2xl z-20 flex flex-col transition-all duration-300">
+                    <div class="p-4 border-b border-white/50 flex items-center justify-between sticky top-0">
+                        <button onclick="closeEmailDetail()" class="w-10 h-10 rounded-full glass-btn text-slate-700 hover:text-indigo-600 flex items-center justify-center transition-colors">
                             <i class="fas fa-arrow-left"></i>
                         </button>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">মেইল ভিউ</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">মেইল ভিউ</span>
                         <div class="w-10"></div>
                     </div>
                     
                     <div class="p-6 overflow-y-auto hide-scroll flex-grow">
                         <div id="otpContainer" class="hidden mb-8 flex justify-center">
                             <button onclick="copyOTP()" class="group relative bg-gradient-to-r from-amber-400 to-orange-500 p-[2px] rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                                <div class="bg-white rounded-full px-8 py-3 flex items-center gap-3">
+                                <div class="bg-white/90 backdrop-blur-sm rounded-full px-8 py-3 flex items-center gap-3">
                                     <i class="fas fa-key text-orange-500"></i>
                                     <span class="text-xs font-bold text-slate-500 uppercase">OTP Code</span>
                                     <span id="otpValue" class="text-2xl font-extrabold text-slate-800 tracking-widest ml-2"></span>
@@ -132,29 +182,29 @@
 
                         <h3 id="detailSubject" class="text-2xl font-extrabold mb-6 text-slate-800 leading-tight"></h3>
                         
-                        <div class="flex items-center gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-sm" id="avatarInitial">S</div>
+                        <div class="flex items-center gap-4 mb-8 glass-btn p-4 rounded-2xl">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md" id="avatarInitial">S</div>
                             <div class="flex-1 min-w-0">
-                                <div class="font-bold text-slate-800 truncate text-sm" id="detailSender"></div>
-                                <div class="text-xs text-slate-500 truncate mt-0.5">To: <span id="detailRecipient"></span></div>
+                                <div class="font-bold text-slate-800 truncate text-base" id="detailSender"></div>
+                                <div class="text-xs text-slate-500 truncate mt-0.5 font-medium">To: <span id="detailRecipient"></span></div>
                             </div>
-                            <div class="text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-100" id="detailTime"></div>
+                            <div class="text-xs font-bold text-slate-500 glass-btn px-3 py-1.5 rounded-full" id="detailTime"></div>
                         </div>
 
-                        <div id="detailBody" class="text-slate-700 whitespace-pre-line text-base leading-relaxed p-2"></div>
+                        <div id="detailBody" class="text-slate-700 whitespace-pre-line text-base leading-relaxed p-2 font-medium"></div>
                     </div>
                 </div>
 
                 <!-- Email List -->
                 <div id="inboxList" class="absolute inset-0 overflow-y-auto hide-scroll">
                     <div id="emptyState" class="flex flex-col items-center justify-center h-full text-slate-400 px-6 text-center">
-                        <div class="w-24 h-24 bg-white rounded-full shadow-sm flex items-center justify-center mb-6">
-                            <i class="fas fa-envelope-open-text text-4xl text-indigo-200"></i>
+                        <div class="w-24 h-24 glass-btn rounded-full shadow-sm flex items-center justify-center mb-6">
+                            <i class="fas fa-envelope-open-text text-4xl text-slate-300"></i>
                         </div>
-                        <p class="font-bold text-xl text-slate-700 mb-2">ইনবক্স খালি</p>
-                        <p class="text-sm">এখানে আপনার নতুন ইমেইলগুলো দেখা যাবে। আমরা স্বয়ংক্রিয়ভাবে ইনবক্স সিঙ্ক করছি।</p>
+                        <p class="font-extrabold text-xl text-slate-600 mb-2">ইনবক্স খালি</p>
+                        <p class="text-sm font-medium text-slate-500">এখানে আপনার নতুন ইমেইলগুলো দেখা যাবে।</p>
                     </div>
-                    <ul id="emailItems" class="divide-y divide-slate-100/50 hidden"></ul>
+                    <ul id="emailItems" class="divide-y divide-white/40 hidden"></ul>
                 </div>
             </div>
         </div>
@@ -191,16 +241,39 @@
         let seenEmailIds = new Set();
         let loadedEmails = []; 
         let currentOTP = "";
+        
+        // Variables for Custom Modal
+        let emailToDelete = null;
+        let eventToDelete = null;
 
-        document.addEventListener("DOMContentLoaded", initApp);
+        // Theme Management
+        const themeGradients = {
+            'default': ['from-indigo-50', 'via-purple-50', 'to-pink-50'],
+            'ocean': ['from-cyan-50', 'via-blue-50', 'to-indigo-50'],
+            'forest': ['from-emerald-50', 'via-teal-50', 'to-green-50'],
+            'sunset': ['from-orange-50', 'via-rose-50', 'to-pink-50']
+        };
+
+        function setTheme(themeName) {
+            const body = document.getElementById('appBody');
+            Object.values(themeGradients).forEach(classes => body.classList.remove(...classes));
+            body.classList.add(...themeGradients[themeName]);
+            localStorage.setItem('taskesy_theme', themeName);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem('taskesy_theme') || 'default';
+            setTheme(savedTheme);
+            initApp();
+        });
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            const colors = type === 'error' ? 'bg-red-600' : 'bg-slate-800';
-            const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+            const bgClass = type === 'error' ? 'bg-rose-500' : 'bg-slate-800';
+            const icon = type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle';
             
-            toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 ${colors} text-white px-5 py-3 rounded-2xl shadow-xl pointer-events-auto flex items-center justify-center gap-3 text-sm font-semibold max-w-max mx-auto z-50`;
+            toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 ${bgClass} text-white px-6 py-3.5 rounded-2xl shadow-xl pointer-events-auto flex items-center justify-center gap-3 text-sm font-bold max-w-max mx-auto`;
             toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
             
             container.appendChild(toast);
@@ -211,52 +284,38 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            
             if (sidebar.classList.contains('translate-x-full')) {
                 overlay.classList.remove('hidden');
-                setTimeout(() => {
-                    overlay.classList.add('opacity-100');
-                    sidebar.classList.remove('translate-x-full');
-                    sidebar.classList.add('translate-x-0');
-                }, 10);
+                setTimeout(() => { overlay.classList.add('opacity-100'); sidebar.classList.remove('translate-x-full'); sidebar.classList.add('translate-x-0'); }, 10);
                 renderSidebarList();
             } else {
-                sidebar.classList.remove('translate-x-0');
-                sidebar.classList.add('translate-x-full');
-                overlay.classList.remove('opacity-100');
-                setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+                sidebar.classList.remove('translate-x-0'); sidebar.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100'); setTimeout(() => { overlay.classList.add('hidden'); }, 300);
             }
         }
 
         async function initApp() {
             cleanupExpiredAccounts();
-            if (savedAccounts.length > 0) {
-                switchAccount(savedAccounts[0].address);
-            } else {
-                generateNewMailbox();
-            }
+            if (savedAccounts.length > 0) switchAccount(savedAccounts[0].address);
+            else generateNewMailbox();
         }
 
-        // Cleaned up generateNewMailbox function (No Ads)
         async function generateNewMailbox() {
             showLoading(true);
             const response = await API.create();
             
             if (response.success) {
                 const newAccount = { address: response.address, expires_at: response.expires_at };
-                
                 savedAccounts.unshift(newAccount);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                 
                 const sidebar = document.getElementById('sidebar');
-                if(!sidebar.classList.contains('translate-x-full')) {
-                    toggleSidebar(); 
-                }
+                if(!sidebar.classList.contains('translate-x-full')) toggleSidebar();
                 
                 showToast("নতুন মেইলবক্স তৈরি হয়েছে!");
                 switchAccount(response.address);
             } else {
-                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে! Worker Code চেক করুন।", 'error');
+                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে!", 'error');
                 document.getElementById('emailAddress').innerText = "Error";
                 showLoading(false);
             }
@@ -265,7 +324,6 @@
         function switchAccount(address) {
             const account = savedAccounts.find(acc => acc.address === address);
             if (!account) return;
-
             stopPolling();
             closeEmailDetail();
             
@@ -277,12 +335,8 @@
             document.getElementById('emptyState').classList.remove('hidden');
             document.getElementById('emailItems').classList.add('hidden');
             
-            seenEmailIds.clear();
-            loadedEmails = [];
-            
-            startCountdown();
-            startPolling();
-            showLoading(false);
+            seenEmailIds.clear(); loadedEmails = [];
+            startCountdown(); startPolling(); showLoading(false);
         }
 
         function renderSidebarList() {
@@ -293,14 +347,14 @@
             savedAccounts.forEach(acc => {
                 const isActive = acc.address === currentEmail;
                 const li = document.createElement('li');
-                li.className = `p-3 rounded-xl cursor-pointer border ${isActive ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100 hover:border-indigo-100 hover:bg-slate-50'} transition-all flex items-center justify-between group`;
+                li.className = `p-4 rounded-2xl cursor-pointer transition-all duration-300 flex items-center justify-between group ${isActive ? 'bg-white shadow-md border border-white' : 'glass-btn hover:bg-white/80 border border-transparent'}`;
                 
                 li.innerHTML = `
                     <div class="truncate flex-1 min-w-0" onclick="switchAccount('${acc.address}'); toggleSidebar();">
-                        <p class="font-bold text-sm ${isActive ? 'text-indigo-700' : 'text-slate-700'} truncate">${acc.address}</p>
-                        <p class="text-xs text-slate-400 mt-1"><i class="fas fa-clock"></i> ${formatTimeOnly(acc.expires_at)} পর্যন্ত</p>
+                        <p class="font-extrabold text-sm ${isActive ? 'text-indigo-600' : 'text-slate-700'} truncate">${acc.address}</p>
+                        <p class="text-xs text-slate-500 mt-1 font-medium"><i class="fas fa-clock"></i> ${formatTimeOnly(acc.expires_at)}</p>
                     </div>
-                    <button onclick="deleteSpecificMailbox('${acc.address}', event)" class="ml-2 w-8 h-8 rounded-full bg-red-50 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all flex-shrink-0" title="Delete Mailbox">
+                    <button onclick="triggerDelete('${acc.address}', event, this)" class="ml-3 w-8 h-8 rounded-full bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all flex-shrink-0" title="Delete">
                         <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                 `;
@@ -312,9 +366,7 @@
             const now = new Date().getTime();
             const originalLength = savedAccounts.length;
             savedAccounts = savedAccounts.filter(acc => new Date(acc.expires_at).getTime() > now);
-            if (originalLength !== savedAccounts.length) {
-                localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
-            }
+            if (originalLength !== savedAccounts.length) localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
         }
 
         function showLoading(isLoading) {
@@ -342,28 +394,25 @@
         function startCountdown() {
             if (countdownInterval) clearInterval(countdownInterval);
             const countdownEl = document.getElementById('countdown');
-            countdownEl.parentElement.classList.remove('text-red-500', 'bg-red-50', 'border-red-100');
-            countdownEl.parentElement.classList.add('text-indigo-700', 'bg-indigo-50/80', 'border-indigo-100');
+            countdownEl.parentElement.classList.remove('text-rose-500', 'bg-rose-50');
+            countdownEl.parentElement.classList.add('text-slate-700', 'glass-btn');
             
             countdownInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = expiresAt - now;
-
+                const distance = expiresAt - new Date().getTime();
                 if (distance < 0) {
                     clearInterval(countdownInterval);
                     countdownEl.innerText = "মেয়াদ শেষ";
-                    countdownEl.parentElement.classList.remove('text-indigo-700', 'bg-indigo-50/80', 'border-indigo-100');
-                    countdownEl.parentElement.classList.add('text-red-600', 'bg-red-50', 'border-red-100');
+                    countdownEl.parentElement.classList.remove('text-slate-700', 'glass-btn');
+                    countdownEl.parentElement.classList.add('text-rose-600', 'bg-rose-100');
                     stopPolling();
                     savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                     localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                     return;
                 }
-
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                countdownEl.innerText = String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                countdownEl.innerText = String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
             }, 1000);
         }
 
@@ -383,13 +432,12 @@
             const response = await API.getInbox(currentEmail);
             
             if (response.success && response.emails) {
+                if(response.emails.length > loadedEmails.length) renderInbox(response.emails);
                 loadedEmails = response.emails; 
-                renderInbox(loadedEmails);
             } else if (response.error === "Mailbox expired") {
                 savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
-                stopPolling();
-                showToast("এই মেইলটির মেয়াদ শেষ হয়ে গেছে", "error");
+                stopPolling(); showToast("এই মেইলটির মেয়াদ শেষ হয়ে গেছে", "error");
             }
             setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
@@ -399,20 +447,17 @@
             const emailItems = document.getElementById('emailItems');
             
             if (!emails || emails.length === 0) {
-                emptyState.classList.remove('hidden');
-                emailItems.classList.add('hidden');
+                emptyState.classList.remove('hidden'); emailItems.classList.add('hidden');
                 return;
             }
 
             emptyState.classList.add('hidden');
-            if(document.getElementById('emailDetailView').classList.contains('hidden')) {
-                emailItems.classList.remove('hidden');
-            }
+            if(document.getElementById('emailDetailView').classList.contains('hidden')) emailItems.classList.remove('hidden');
             
-            let listHTML = '';
-            emails.forEach(email => {
+            emailItems.innerHTML = '';
+            emails.forEach((email, index) => {
                 const isNew = !seenEmailIds.has(email.id);
-                if(isNew && document.getElementById('emailItems').innerHTML !== '') showToast("নতুন ইমেইল এসেছে!");
+                if(isNew && loadedEmails.length > 0) showToast("নতুন ইমেইল এসেছে!");
                 seenEmailIds.add(email.id);
 
                 const dateStr = email.received_at || email['received at'];
@@ -420,20 +465,27 @@
                 const sender = email.sender || 'Unknown Sender';
                 const initial = sender.charAt(0).toUpperCase();
                 
-                listHTML += `
-                    <li class="p-4 hover:bg-white/80 cursor-pointer transition-all flex items-center gap-4 ${isNew ? 'bg-indigo-50/50 border-l-4 border-indigo-500' : 'bg-transparent'}" onclick="viewEmail('${email.id}')">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold flex-shrink-0">${initial}</div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-sm font-extrabold text-slate-800 truncate">${escapeHTML(sender)}</span>
-                                <span class="text-xs font-semibold text-slate-400 whitespace-nowrap ml-3">${formatDate(dateStr)}</span>
-                            </div>
-                            <p class="text-sm text-slate-600 truncate">${escapeHTML(subject)}</p>
+                const li = document.createElement('li');
+                // Animation classes added here for new emails
+                li.className = `p-4 cursor-pointer transition-all duration-300 flex items-center gap-4 ${isNew ? 'bg-white/60 border-l-4 border-indigo-500 animate-mail-in opacity-0' : 'hover:bg-white/40 border-transparent'}`;
+                li.onclick = () => viewEmail(email.id);
+                li.innerHTML = `
+                    <div class="w-12 h-12 rounded-full glass-btn shadow-sm flex items-center justify-center text-indigo-600 font-extrabold flex-shrink-0">${initial}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[15px] font-bold text-slate-800 truncate">${escapeHTML(sender)}</span>
+                            <span class="text-xs font-bold text-slate-500 whitespace-nowrap ml-3">${formatDate(dateStr)}</span>
                         </div>
-                    </li>
+                        <p class="text-sm font-medium text-slate-600 truncate">${escapeHTML(subject)}</p>
+                    </div>
                 `;
+                
+                // Staggered animation
+                if (isNew) {
+                    li.style.animationDelay = `${index * 0.1}s`;
+                }
+                emailItems.appendChild(li);
             });
-            emailItems.innerHTML = listHTML;
         }
 
         function viewEmail(id) {
@@ -441,7 +493,6 @@
             if (em) {
                 const dateStr = em.received_at || em['received at'];
                 const sender = em.sender || 'Unknown';
-                
                 document.getElementById('detailSubject').innerText = em.subject || '(No Subject)';
                 document.getElementById('detailSender').innerText = sender;
                 document.getElementById('avatarInitial').innerText = sender.charAt(0).toUpperCase();
@@ -453,19 +504,13 @@
                 
                 const otpMatch = bodyText.match(/\b\d{6}\b|\b\d{8}\b/);
                 const otpContainer = document.getElementById('otpContainer');
-                
                 if(otpMatch) {
-                    currentOTP = otpMatch[0];
-                    document.getElementById('otpValue').innerText = currentOTP;
-                    otpContainer.classList.remove('hidden');
-                } else {
-                    currentOTP = "";
-                    otpContainer.classList.add('hidden');
-                }
+                    currentOTP = otpMatch[0]; document.getElementById('otpValue').innerText = currentOTP; otpContainer.classList.remove('hidden');
+                } else { currentOTP = ""; otpContainer.classList.add('hidden'); }
                 
                 document.getElementById('inboxList').classList.add('hidden');
                 document.getElementById('emailDetailView').classList.remove('hidden');
-            } else { showToast("ইমেইলটি খুঁজে পাওয়া যায়নি!", 'error'); }
+            }
         }
 
         function closeEmailDetail() {
@@ -473,27 +518,76 @@
             document.getElementById('inboxList').classList.remove('hidden');
         }
 
-        async function deleteSpecificMailbox(address, event = null) {
+        // Custom Colorful Modal Logic
+        function triggerDelete(address, event = null, element = null) {
             if(event) event.stopPropagation(); 
-            if (!confirm("আপনি কি নিশ্চিত যে এই মেইলবক্সটি ডিলিট করতে চান?")) return;
+            emailToDelete = address;
+            eventToDelete = { elem: element ? element.closest('li') : null };
             
-            showLoading(true);
+            const modal = document.getElementById('confirmModal');
+            const overlay = document.getElementById('confirmOverlay');
+            const content = document.getElementById('confirmContent');
+            
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // trigger reflow
+            overlay.classList.remove('opacity-0');
+            overlay.classList.add('opacity-100');
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            const overlay = document.getElementById('confirmOverlay');
+            const content = document.getElementById('confirmContent');
+            
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => { modal.classList.add('hidden'); emailToDelete = null; eventToDelete = null; }, 300);
+        }
+
+        async function confirmDeleteAction() {
+            if(!emailToDelete) return;
+            const address = emailToDelete;
+            const targetElement = eventToDelete?.elem;
+            closeConfirmModal();
+            
+            // Delete Animation
+            if(targetElement) {
+                targetElement.style.transform = 'scale(0.9)';
+                targetElement.style.opacity = '0';
+            } else if (address === currentEmail) {
+                document.getElementById('mainCard').style.transform = 'scale(0.95)';
+                document.getElementById('mainCard').style.opacity = '0.5';
+            }
+            
             try {
                 await API.deleteMailbox(address);
                 savedAccounts = savedAccounts.filter(acc => acc.address !== address);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                 showToast("মেইলবক্স মুছে ফেলা হয়েছে");
                 
-                if (address === currentEmail) {
-                    if (savedAccounts.length > 0) switchAccount(savedAccounts[0].address);
-                    else generateNewMailbox();
-                } else {
-                    renderSidebarList();
-                    showLoading(false);
-                }
+                setTimeout(() => {
+                    if (address === currentEmail) {
+                        document.getElementById('mainCard').style.transform = 'scale(1)';
+                        document.getElementById('mainCard').style.opacity = '1';
+                        if (savedAccounts.length > 0) switchAccount(savedAccounts[0].address);
+                        else generateNewMailbox();
+                    } else {
+                        if(targetElement) targetElement.remove();
+                        renderSidebarList();
+                    }
+                }, 300);
+                
             } catch (err) {
                 showToast("নেটওয়ার্ক সমস্যা", 'error');
-                showLoading(false);
+                if(targetElement) {
+                    targetElement.style.transform = 'scale(1)';
+                    targetElement.style.opacity = '1';
+                }
             }
         }
 
