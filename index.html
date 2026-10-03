@@ -10,29 +10,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* Foolproof Deep Background Themes */
-        .theme-deep-purple { background: linear-gradient(135deg, #4338ca, #6b21a8, #86198f) !important; }
-        .theme-deep-ocean { background: linear-gradient(135deg, #1d4ed8, #0e7490, #0f766e) !important; }
-        .theme-deep-forest { background: linear-gradient(135deg, #047857, #15803d, #115e59) !important; }
-        .theme-deep-sunset { background: linear-gradient(135deg, #ea580c, #be123c, #9f1239) !important; }
-        .theme-midnight { background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81) !important; }
-
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            transition: background 0.8s ease-in-out;
             min-height: 100vh;
         }
         
         /* Premium Glassmorphism */
         .glass-card { 
-            background: rgba(255, 255, 255, 0.92); 
+            background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(24px) saturate(200%); 
             -webkit-backdrop-filter: blur(24px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.8); 
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
         .glass-btn {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -47,10 +39,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .theme-btn { transition: transform 0.2s, box-shadow 0.2s; }
-        .theme-btn:hover { transform: scale(1.15); box-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .theme-btn:hover { transform: scale(1.15); box-shadow: 0 0 15px rgba(255,255,255,0.8); }
     </style>
 </head>
-<body id="appBody" class="theme-deep-purple text-slate-800 antialiased flex flex-col relative overflow-x-hidden">
+<body id="appBody" class="bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900 text-slate-800 antialiased flex flex-col relative overflow-x-hidden transition-all duration-700 ease-in-out">
 
     <!-- Custom Modal -->
     <div id="confirmModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
@@ -90,30 +82,31 @@
     </div>
 
     <!-- Header & Corner Theme Switcher -->
-    <header class="pt-6 pb-2 relative z-10">
+    <header class="pt-6 pb-4 relative z-10">
         <div class="container mx-auto px-4 flex items-center justify-between">
             
-            <!-- Corner Theme Switcher -->
+            <!-- Always Visible Theme Switcher Icon -->
             <div class="relative">
-                <button onclick="toggleThemeMenu()" class="w-12 h-12 glass-btn rounded-2xl shadow-sm text-white hover:text-indigo-200 transition-colors flex items-center justify-center text-xl bg-white/20">
+                <button onclick="toggleThemeMenu()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20">
                     <i class="fas fa-palette"></i>
                 </button>
                 
                 <!-- Theme Dropdown Menu -->
-                <div id="themeMenu" class="absolute top-14 left-0 glass-card p-3 rounded-2xl shadow-xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0">
-                    <button onclick="setTheme('theme-deep-purple')" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-700 to-purple-800 shadow-md border-2 border-white theme-btn"></button>
-                    <button onclick="setTheme('theme-deep-ocean')" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-700 to-cyan-800 shadow-md border-2 border-white theme-btn"></button>
-                    <button onclick="setTheme('theme-deep-forest')" class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-700 to-teal-900 shadow-md border-2 border-white theme-btn"></button>
-                    <button onclick="setTheme('theme-deep-sunset')" class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-600 to-rose-800 shadow-md border-2 border-white theme-btn"></button>
-                    <button onclick="setTheme('theme-midnight')" class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-900 to-indigo-900 shadow-md border-2 border-white theme-btn"></button>
+                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white z-50">
+                    <button onclick="setTheme('purple')" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-900 to-fuchsia-900 shadow-md border-2 border-white theme-btn"></button>
+                    <button onclick="setTheme('ocean')" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-900 to-teal-900 shadow-md border-2 border-white theme-btn"></button>
+                    <button onclick="setTheme('forest')" class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-900 to-green-900 shadow-md border-2 border-white theme-btn"></button>
+                    <button onclick="setTheme('sunset')" class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-900 to-rose-900 shadow-md border-2 border-white theme-btn"></button>
+                    <button onclick="setTheme('midnight')" class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-900 to-black shadow-md border-2 border-white theme-btn"></button>
                 </div>
             </div>
             
             <div class="text-center flex-1">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">Toxic Mail</h1>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Toxic Mail</h1>
             </div>
             
-            <button onclick="toggleSidebar()" class="w-12 h-12 glass-btn rounded-2xl shadow-sm text-white hover:text-indigo-200 transition-colors flex items-center justify-center text-xl bg-white/20">
+            <!-- Sidebar Icon -->
+            <button onclick="toggleSidebar()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -151,7 +144,7 @@
                 <div class="flex items-center text-slate-700 font-semibold glass-btn px-5 py-2 rounded-full">
                     <i class="fas fa-stopwatch mr-2 text-indigo-600"></i> মেয়াদ: <span id="countdown" class="ml-1 tracking-wider font-bold">00:00:00</span>
                 </div>
-                <button onclick="triggerDelete(currentEmail)" class="text-slate-500 hover:text-rose-500 font-bold flex items-center transition-colors px-4 py-2 rounded-full hover:bg-white/60">
+                <button onclick="triggerDelete(currentEmail)" class="text-slate-500 hover:text-rose-500 font-bold flex items-center transition-colors px-4 py-2 rounded-full hover:bg-slate-100">
                     <i class="fas fa-trash-alt mr-2"></i> মেইলবক্স মুছুন
                 </button>
             </div>
@@ -159,7 +152,7 @@
 
         <!-- Inbox Section -->
         <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px]">
-            <div class="border-b border-white/60 p-5 flex justify-between items-center sticky top-0 z-10 bg-white/40 backdrop-blur-sm">
+            <div class="border-b border-slate-200/50 p-5 flex justify-between items-center sticky top-0 z-10 bg-white/40 backdrop-blur-sm">
                 <h2 class="text-lg font-extrabold text-slate-800 flex items-center">
                     <span class="w-10 h-10 rounded-full glass-btn text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
                         <i class="fas fa-inbox text-lg"></i>
@@ -173,8 +166,8 @@
 
             <div class="relative flex-grow overflow-hidden">
                 <!-- Email Detail View -->
-                <div id="emailDetailView" class="hidden absolute inset-0 bg-white/90 backdrop-blur-2xl z-20 flex flex-col transition-all duration-300">
-                    <div class="p-4 border-b border-white/60 flex items-center justify-between sticky top-0 bg-white/50">
+                <div id="emailDetailView" class="hidden absolute inset-0 bg-white/95 backdrop-blur-2xl z-20 flex flex-col transition-all duration-300">
+                    <div class="p-4 border-b border-slate-200/50 flex items-center justify-between sticky top-0 bg-white/50">
                         <button onclick="closeEmailDetail()" class="w-10 h-10 rounded-full glass-btn text-slate-700 hover:text-indigo-600 flex items-center justify-center transition-colors">
                             <i class="fas fa-arrow-left"></i>
                         </button>
@@ -259,12 +252,23 @@
         let emailToDelete = null;
         let eventToDelete = null;
 
-        // Perfect Theme Management
-        function setTheme(themeName) {
+        // FIXED Theme Management (Using explicit Tailwind classes)
+        const themeClasses = {
+            'purple': 'bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900',
+            'ocean': 'bg-gradient-to-br from-blue-900 via-cyan-900 to-teal-900',
+            'forest': 'bg-gradient-to-br from-emerald-900 via-green-900 to-teal-900',
+            'sunset': 'bg-gradient-to-br from-orange-900 via-red-900 to-rose-900',
+            'midnight': 'bg-gradient-to-br from-slate-900 via-black to-slate-900'
+        };
+
+        function setTheme(themeKey) {
             const body = document.getElementById('appBody');
-            body.className = body.className.replace(/\btheme-[a-z-]+\b/g, ''); // Remove old theme
-            body.classList.add(themeName);
-            localStorage.setItem('taskesy_theme', themeName);
+            // Remove previous theme classes
+            body.className = body.className.replace(/bg-gradient-to-br\s+from-[a-z0-9-]+\s+via-[a-z0-9-]+\s+to-[a-z0-9-]+/g, '');
+            // Apply new theme
+            body.className += ' ' + themeClasses[themeKey];
+            
+            localStorage.setItem('taskesy_theme_key', themeKey);
             closeThemeMenu();
         }
 
@@ -283,7 +287,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            const savedTheme = localStorage.getItem('taskesy_theme') || 'theme-deep-purple';
+            const savedTheme = localStorage.getItem('taskesy_theme_key') || 'purple';
             setTheme(savedTheme);
             initApp();
         });
@@ -317,11 +321,11 @@
 
         async function initApp() {
             cleanupExpiredAccounts();
-            let lastActive = localStorage.getItem('taskesy_current_email');
+            let lastActive = localStorage.getItem('taskesy_current_email'); // Retains selected email
             
             if (savedAccounts.length > 0) {
                 let accToLoad = savedAccounts.find(acc => acc.address === lastActive);
-                if(accToLoad) switchAccount(accToLoad.address); // Load saved state
+                if(accToLoad) switchAccount(accToLoad.address); 
                 else switchAccount(savedAccounts[0].address);
             } else {
                 generateNewMailbox();
@@ -353,7 +357,7 @@
             const account = savedAccounts.find(acc => acc.address === address);
             if (!account) return;
             
-            // Save state persistence
+            // Save state persistence to avoid reset on refresh
             localStorage.setItem('taskesy_current_email', address);
             
             stopPolling();
@@ -400,7 +404,6 @@
             savedAccounts = savedAccounts.filter(acc => new Date(acc.expires_at).getTime() > now);
             if (originalLength !== savedAccounts.length) {
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
-                // Clear current state if it expired
                 if(!savedAccounts.find(a => a.address === localStorage.getItem('taskesy_current_email'))) {
                     localStorage.removeItem('taskesy_current_email');
                 }
@@ -484,6 +487,38 @@
             setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
 
+        // SMART OTP EXTRACTOR (Fixed Zip code false positives)
+        function findRealOTP(subject, body) {
+            const fullText = ((subject || '') + " " + (body || '')).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ');
+            
+            // 1. Specifically matches "Use XXXXXX to log into..." (For Meta/Instagram)
+            const useRegex = /use\s+([A-Z0-9]{4,10})\s+to/i;
+            let match = fullText.match(useRegex);
+            if (match) return match[1];
+
+            // 2. Matches typical "code is XXXXXX", "OTP: XXXXXX"
+            const keywordsRegex = /(?:code|otp|pin|verification|passcode)[\s:=]+([A-Z0-9]{4,8})\b/i;
+            match = fullText.match(keywordsRegex);
+            if (match) return match[1];
+
+            // 3. Matches "XXXXXX is your code"
+            const isYourRegex = /\b([A-Z0-9]{4,8})\s+(?:is your|is the)\s+(?:code|otp|pin|verification)/i;
+            match = fullText.match(isYourRegex);
+            if (match) return match[1];
+            
+            // 4. Matches Google style G-XXXXXX
+            const googleRegex = /g-([0-9]{6})/i;
+            match = fullText.match(googleRegex);
+            if (match) return match[1];
+
+            // 5. Strict 6-digit fallback (Ignores known Zip codes like 94025, 10001, 1601)
+            const strict6Digit = /(?<!\d)\b(\d{6})\b(?!\d)/;
+            match = fullText.match(strict6Digit);
+            if (match) return match[1];
+
+            return null;
+        }
+
         function renderInbox(emails) {
             const emptyState = document.getElementById('emptyState');
             const emailItems = document.getElementById('emailItems');
@@ -507,16 +542,15 @@
                 const sender = email.sender || 'Unknown Sender';
                 const initial = sender.charAt(0).toUpperCase();
                 
-                // Advanced OTP Extraction (4 to 8 digits)
-                const combinedText = (subject + " " + (email.body || '')).replace(/<[^>]*>?/gm, '');
-                const otpMatch = combinedText.match(/\b\d{4,8}\b/);
+                // Fetch smart OTP
+                const extractedOTP = findRealOTP(subject, email.body);
                 let inlineOtpBtn = '';
                 
-                if(otpMatch) {
+                if(extractedOTP) {
                     inlineOtpBtn = `
                     <div class="mb-2 mt-1">
-                        <button onclick="copyInlineOTP('${otpMatch[0]}', event)" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3.5 py-1.5 rounded-lg text-[13px] font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                            <i class="fas fa-copy"></i> OTP: ${otpMatch[0]}
+                        <button onclick="copyInlineOTP('${extractedOTP}', event)" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3.5 py-1.5 rounded-lg text-[13px] font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                            <i class="fas fa-copy"></i> OTP: ${extractedOTP}
                         </button>
                     </div>`;
                 }
@@ -556,12 +590,11 @@
                 const bodyText = em.body || '';
                 document.getElementById('detailBody').innerHTML = bodyText ? escapeHTML(bodyText) : '<i>(Empty Message)</i>';
                 
-                const combinedText = ((em.subject || '') + " " + bodyText).replace(/<[^>]*>?/gm, '');
-                const otpMatch = combinedText.match(/\b\d{4,8}\b/);
+                const extractedOTP = findRealOTP(em.subject, em.body);
                 const otpContainer = document.getElementById('otpContainer');
                 
-                if(otpMatch) {
-                    currentOTP = otpMatch[0]; 
+                if(extractedOTP) {
+                    currentOTP = extractedOTP; 
                     document.getElementById('otpValue').innerText = currentOTP; 
                     otpContainer.classList.remove('hidden');
                 } else { 
