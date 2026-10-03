@@ -7,7 +7,9 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     
     <style>
         body { 
@@ -15,6 +17,12 @@
             min-height: 100vh;
         }
         
+        /* Stylish Title Font */
+        .title-font {
+            font-family: 'Righteous', cursive;
+            letter-spacing: 1.5px;
+        }
+
         /* Premium Glassmorphism */
         .glass-card { 
             background: rgba(255, 255, 255, 0.95); 
@@ -81,18 +89,18 @@
         </div>
     </div>
 
-    <!-- Header & Corner Theme Switcher -->
-    <header class="pt-6 pb-4 relative z-10">
+    <!-- Header & Corner Theme Switcher (Z-Index Fixed here) -->
+    <header class="pt-6 pb-4 relative z-[60]">
         <div class="container mx-auto px-4 flex items-center justify-between">
             
             <!-- Always Visible Theme Switcher Icon -->
-            <div class="relative z-[100]">
-                <button onclick="toggleThemeMenu()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20 relative z-20">
+            <div class="relative">
+                <button onclick="toggleThemeMenu()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20">
                     <i class="fas fa-palette"></i>
                 </button>
                 
                 <!-- Theme Dropdown Menu -->
-                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white z-[100]">
+                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white">
                     <button onclick="setTheme('purple')" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-900 to-fuchsia-900 shadow-md border-2 border-white theme-btn"></button>
                     <button onclick="setTheme('ocean')" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-900 to-teal-900 shadow-md border-2 border-white theme-btn"></button>
                     <button onclick="setTheme('forest')" class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-900 to-green-900 shadow-md border-2 border-white theme-btn"></button>
@@ -102,7 +110,8 @@
             </div>
             
             <div class="text-center flex-1">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Toxic Mail</h1>
+                <!-- Stylish Premium Title -->
+                <h1 class="text-3xl md:text-4xl text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] title-font">Toxic Mail</h1>
             </div>
             
             <!-- Sidebar Icon -->
@@ -116,7 +125,7 @@
     <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl relative z-10">
         
         <!-- Email Generation Box -->
-        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500 z-10">
+        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500">
             <div id="loadingEmail" class="absolute inset-0 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center z-20 hidden transition-opacity duration-300">
                 <div class="relative w-16 h-16">
                     <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
@@ -151,7 +160,7 @@
         </div>
 
         <!-- Inbox Section -->
-        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px] z-10">
+        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px]">
             <div class="border-b border-slate-200/50 p-5 flex justify-between items-center sticky top-0 z-20 bg-white/40 backdrop-blur-sm">
                 <h2 class="text-lg font-extrabold text-slate-800 flex items-center">
                     <span class="w-10 h-10 rounded-full glass-btn text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
@@ -252,18 +261,25 @@
         let emailToDelete = null;
         let eventToDelete = null;
 
+        // FIXED Theme Management (Using specific arrays to remove old classes)
         const themeClasses = {
-            'purple': 'bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900',
-            'ocean': 'bg-gradient-to-br from-blue-900 via-cyan-900 to-teal-900',
-            'forest': 'bg-gradient-to-br from-emerald-900 via-green-900 to-teal-900',
-            'sunset': 'bg-gradient-to-br from-orange-900 via-red-900 to-rose-900',
-            'midnight': 'bg-gradient-to-br from-slate-900 via-black to-slate-900'
+            'purple': ['from-indigo-900', 'via-purple-900', 'to-fuchsia-900'],
+            'ocean': ['from-blue-900', 'via-cyan-900', 'to-teal-900'],
+            'forest': ['from-emerald-900', 'via-green-900', 'to-teal-900'],
+            'sunset': ['from-orange-900', 'via-red-900', 'to-rose-900'],
+            'midnight': ['from-slate-900', 'via-black', 'to-slate-900']
         };
 
         function setTheme(themeKey) {
             const body = document.getElementById('appBody');
-            body.className = body.className.replace(/bg-gradient-to-br\s+from-[a-z0-9-]+\s+via-[a-z0-9-]+\s+to-[a-z0-9-]+/g, '');
-            body.className += ' ' + themeClasses[themeKey];
+            
+            // Remove all existing theme gradient classes
+            Object.values(themeClasses).forEach(classes => {
+                body.classList.remove(...classes);
+            });
+            
+            // Add the selected theme's classes
+            body.classList.add(...themeClasses[themeKey]);
             
             localStorage.setItem('taskesy_theme_key', themeKey);
             closeThemeMenu();
@@ -496,27 +512,22 @@
         function findRealOTP(subject, body) {
             const fullText = ((subject || '') + " " + (body || '')).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ');
             
-            // 1. Specifically matches "Use XXXXXX to log into..." (For Meta/Instagram 8-10 digits)
             const useRegex = /use\s+([A-Z0-9]{4,10})\s+to/i;
             let match = fullText.match(useRegex);
             if (match) return match[1];
 
-            // 2. Matches typical "code is XXXXXX", "OTP: XXXXXX" (4-10 digits)
             const keywordsRegex = /(?:code|otp|pin|verification|passcode)[\s:=]+([A-Z0-9]{4,10})\b/i;
             match = fullText.match(keywordsRegex);
             if (match) return match[1];
 
-            // 3. Matches "XXXXXX is your code" (4-10 digits)
             const isYourRegex = /\b([A-Z0-9]{4,10})\s+(?:is your|is the)\s+(?:code|otp|pin|verification)/i;
             match = fullText.match(isYourRegex);
             if (match) return match[1];
             
-            // 4. Matches Google style G-XXXXXX
             const googleRegex = /g-([0-9]{6})/i;
             match = fullText.match(googleRegex);
             if (match) return match[1];
 
-            // 5. Strict 6 or 8 digit fallback (Ignores known Zip codes like 94025, 10001, 1601)
             const strictDigit = /(?<!\d)\b(\d{6,8})\b(?!\d)/;
             match = fullText.match(strictDigit);
             if (match) return match[1];
