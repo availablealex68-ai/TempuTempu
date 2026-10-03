@@ -9,7 +9,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+    <!-- Armelie Alternative: A beautiful elegant script font -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     
     <style>
         body { 
@@ -17,10 +18,17 @@
             min-height: 100vh;
         }
         
-        /* Stylish Title Font */
+        /* Stylish Armelie-like Title Font */
         .title-font {
-            font-family: 'Righteous', cursive;
-            letter-spacing: 1.5px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem; /* Slightly larger to show the elegance */
+            line-height: 1;
+            font-weight: 400;
+        }
+
+        /* Responsive Title Size */
+        @media (max-width: 768px) {
+            .title-font { font-size: 3rem; }
         }
 
         /* Premium Glassmorphism */
@@ -89,7 +97,7 @@
         </div>
     </div>
 
-    <!-- Header & Corner Theme Switcher (Z-Index Fixed here) -->
+    <!-- Header & Corner Theme Switcher -->
     <header class="pt-6 pb-4 relative z-[60]">
         <div class="container mx-auto px-4 flex items-center justify-between">
             
@@ -110,8 +118,8 @@
             </div>
             
             <div class="text-center flex-1">
-                <!-- Stylish Premium Title -->
-                <h1 class="text-3xl md:text-4xl text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] title-font">Toxic Mail</h1>
+                <!-- Armelie Alternative Elegant Title -->
+                <h1 class="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] title-font">Toxic Mail</h1>
             </div>
             
             <!-- Sidebar Icon -->
@@ -125,7 +133,7 @@
     <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl relative z-10">
         
         <!-- Email Generation Box -->
-        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500">
+        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500 z-10">
             <div id="loadingEmail" class="absolute inset-0 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center z-20 hidden transition-opacity duration-300">
                 <div class="relative w-16 h-16">
                     <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
@@ -160,7 +168,7 @@
         </div>
 
         <!-- Inbox Section -->
-        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px]">
+        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px] z-10">
             <div class="border-b border-slate-200/50 p-5 flex justify-between items-center sticky top-0 z-20 bg-white/40 backdrop-blur-sm">
                 <h2 class="text-lg font-extrabold text-slate-800 flex items-center">
                     <span class="w-10 h-10 rounded-full glass-btn text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
@@ -261,7 +269,6 @@
         let emailToDelete = null;
         let eventToDelete = null;
 
-        // FIXED Theme Management (Using specific arrays to remove old classes)
         const themeClasses = {
             'purple': ['from-indigo-900', 'via-purple-900', 'to-fuchsia-900'],
             'ocean': ['from-blue-900', 'via-cyan-900', 'to-teal-900'],
@@ -273,12 +280,10 @@
         function setTheme(themeKey) {
             const body = document.getElementById('appBody');
             
-            // Remove all existing theme gradient classes
             Object.values(themeClasses).forEach(classes => {
                 body.classList.remove(...classes);
             });
             
-            // Add the selected theme's classes
             body.classList.add(...themeClasses[themeKey]);
             
             localStorage.setItem('taskesy_theme_key', themeKey);
@@ -299,7 +304,6 @@
             setTimeout(() => { menu.classList.add('hidden'); }, 200);
         }
         
-        // Close theme menu if clicked outside
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('themeMenu');
             const toggleBtn = event.target.closest('.fa-palette')?.parentElement;
@@ -508,7 +512,6 @@
             setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
 
-        // SMART OTP EXTRACTOR (Support for 4 to 10 digits)
         function findRealOTP(subject, body) {
             const fullText = ((subject || '') + " " + (body || '')).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ');
             
