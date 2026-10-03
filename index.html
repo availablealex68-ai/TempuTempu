@@ -86,13 +86,13 @@
         <div class="container mx-auto px-4 flex items-center justify-between">
             
             <!-- Always Visible Theme Switcher Icon -->
-            <div class="relative">
-                <button onclick="toggleThemeMenu()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20">
+            <div class="relative z-[100]">
+                <button onclick="toggleThemeMenu()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20 relative z-20">
                     <i class="fas fa-palette"></i>
                 </button>
                 
                 <!-- Theme Dropdown Menu -->
-                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white z-50">
+                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white z-[100]">
                     <button onclick="setTheme('purple')" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-900 to-fuchsia-900 shadow-md border-2 border-white theme-btn"></button>
                     <button onclick="setTheme('ocean')" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-900 to-teal-900 shadow-md border-2 border-white theme-btn"></button>
                     <button onclick="setTheme('forest')" class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-900 to-green-900 shadow-md border-2 border-white theme-btn"></button>
@@ -116,8 +116,8 @@
     <main class="container mx-auto px-4 py-4 flex-grow max-w-4xl relative z-10">
         
         <!-- Email Generation Box -->
-        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500">
-            <div id="loadingEmail" class="absolute inset-0 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center z-10 hidden transition-opacity duration-300">
+        <div id="mainCard" class="glass-card rounded-[2rem] p-8 mb-8 text-center relative overflow-hidden transition-all duration-500 z-10">
+            <div id="loadingEmail" class="absolute inset-0 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center z-20 hidden transition-opacity duration-300">
                 <div class="relative w-16 h-16">
                     <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
                     <div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
@@ -151,8 +151,8 @@
         </div>
 
         <!-- Inbox Section -->
-        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px]">
-            <div class="border-b border-slate-200/50 p-5 flex justify-between items-center sticky top-0 z-10 bg-white/40 backdrop-blur-sm">
+        <div class="glass-card rounded-[2rem] overflow-hidden flex flex-col h-[500px] z-10">
+            <div class="border-b border-slate-200/50 p-5 flex justify-between items-center sticky top-0 z-20 bg-white/40 backdrop-blur-sm">
                 <h2 class="text-lg font-extrabold text-slate-800 flex items-center">
                     <span class="w-10 h-10 rounded-full glass-btn text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
                         <i class="fas fa-inbox text-lg"></i>
@@ -166,7 +166,7 @@
 
             <div class="relative flex-grow overflow-hidden">
                 <!-- Email Detail View -->
-                <div id="emailDetailView" class="hidden absolute inset-0 bg-white/95 backdrop-blur-2xl z-20 flex flex-col transition-all duration-300">
+                <div id="emailDetailView" class="hidden absolute inset-0 bg-white/95 backdrop-blur-2xl z-30 flex flex-col transition-all duration-300">
                     <div class="p-4 border-b border-slate-200/50 flex items-center justify-between sticky top-0 bg-white/50">
                         <button onclick="closeEmailDetail()" class="w-10 h-10 rounded-full glass-btn text-slate-700 hover:text-indigo-600 flex items-center justify-center transition-colors">
                             <i class="fas fa-arrow-left"></i>
@@ -252,7 +252,6 @@
         let emailToDelete = null;
         let eventToDelete = null;
 
-        // FIXED Theme Management (Using explicit Tailwind classes)
         const themeClasses = {
             'purple': 'bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900',
             'ocean': 'bg-gradient-to-br from-blue-900 via-cyan-900 to-teal-900',
@@ -263,9 +262,7 @@
 
         function setTheme(themeKey) {
             const body = document.getElementById('appBody');
-            // Remove previous theme classes
             body.className = body.className.replace(/bg-gradient-to-br\s+from-[a-z0-9-]+\s+via-[a-z0-9-]+\s+to-[a-z0-9-]+/g, '');
-            // Apply new theme
             body.className += ' ' + themeClasses[themeKey];
             
             localStorage.setItem('taskesy_theme_key', themeKey);
@@ -285,6 +282,15 @@
             menu.classList.remove('scale-100', 'opacity-100'); menu.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { menu.classList.add('hidden'); }, 200);
         }
+        
+        // Close theme menu if clicked outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('themeMenu');
+            const toggleBtn = event.target.closest('.fa-palette')?.parentElement;
+            if (!toggleBtn && !menu.contains(event.target) && !menu.classList.contains('hidden')) {
+                closeThemeMenu();
+            }
+        });
 
         document.addEventListener("DOMContentLoaded", () => {
             const savedTheme = localStorage.getItem('taskesy_theme_key') || 'purple';
@@ -321,7 +327,7 @@
 
         async function initApp() {
             cleanupExpiredAccounts();
-            let lastActive = localStorage.getItem('taskesy_current_email'); // Retains selected email
+            let lastActive = localStorage.getItem('taskesy_current_email'); 
             
             if (savedAccounts.length > 0) {
                 let accToLoad = savedAccounts.find(acc => acc.address === lastActive);
@@ -357,7 +363,6 @@
             const account = savedAccounts.find(acc => acc.address === address);
             if (!account) return;
             
-            // Save state persistence to avoid reset on refresh
             localStorage.setItem('taskesy_current_email', address);
             
             stopPolling();
@@ -429,7 +434,7 @@
         }
 
         async function copyInlineOTP(otp, event) {
-            event.stopPropagation(); // Prevents opening email details
+            event.stopPropagation(); 
             try { await navigator.clipboard.writeText(otp); showToast("OTP কোড কপি করা হয়েছে!"); } 
             catch (err) { showToast("কপি করতে সমস্যা হয়েছে", 'error'); }
         }
@@ -487,22 +492,22 @@
             setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
 
-        // SMART OTP EXTRACTOR (Fixed Zip code false positives)
+        // SMART OTP EXTRACTOR (Support for 4 to 10 digits)
         function findRealOTP(subject, body) {
             const fullText = ((subject || '') + " " + (body || '')).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ');
             
-            // 1. Specifically matches "Use XXXXXX to log into..." (For Meta/Instagram)
+            // 1. Specifically matches "Use XXXXXX to log into..." (For Meta/Instagram 8-10 digits)
             const useRegex = /use\s+([A-Z0-9]{4,10})\s+to/i;
             let match = fullText.match(useRegex);
             if (match) return match[1];
 
-            // 2. Matches typical "code is XXXXXX", "OTP: XXXXXX"
-            const keywordsRegex = /(?:code|otp|pin|verification|passcode)[\s:=]+([A-Z0-9]{4,8})\b/i;
+            // 2. Matches typical "code is XXXXXX", "OTP: XXXXXX" (4-10 digits)
+            const keywordsRegex = /(?:code|otp|pin|verification|passcode)[\s:=]+([A-Z0-9]{4,10})\b/i;
             match = fullText.match(keywordsRegex);
             if (match) return match[1];
 
-            // 3. Matches "XXXXXX is your code"
-            const isYourRegex = /\b([A-Z0-9]{4,8})\s+(?:is your|is the)\s+(?:code|otp|pin|verification)/i;
+            // 3. Matches "XXXXXX is your code" (4-10 digits)
+            const isYourRegex = /\b([A-Z0-9]{4,10})\s+(?:is your|is the)\s+(?:code|otp|pin|verification)/i;
             match = fullText.match(isYourRegex);
             if (match) return match[1];
             
@@ -511,9 +516,9 @@
             match = fullText.match(googleRegex);
             if (match) return match[1];
 
-            // 5. Strict 6-digit fallback (Ignores known Zip codes like 94025, 10001, 1601)
-            const strict6Digit = /(?<!\d)\b(\d{6})\b(?!\d)/;
-            match = fullText.match(strict6Digit);
+            // 5. Strict 6 or 8 digit fallback (Ignores known Zip codes like 94025, 10001, 1601)
+            const strictDigit = /(?<!\d)\b(\d{6,8})\b(?!\d)/;
+            match = fullText.match(strictDigit);
             if (match) return match[1];
 
             return null;
@@ -542,7 +547,6 @@
                 const sender = email.sender || 'Unknown Sender';
                 const initial = sender.charAt(0).toUpperCase();
                 
-                // Fetch smart OTP
                 const extractedOTP = findRealOTP(subject, email.body);
                 let inlineOtpBtn = '';
                 
