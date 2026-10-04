@@ -9,7 +9,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Armelie Alternative: A beautiful elegant script font -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
     
     <style>
@@ -18,15 +17,14 @@
             min-height: 100vh;
         }
         
-        /* Stylish Armelie-like Title Font */
+        /* Stylish Title Font */
         .title-font {
             font-family: 'Great Vibes', cursive;
-            font-size: 3.5rem; /* Slightly larger to show the elegance */
+            font-size: 3.5rem; 
             line-height: 1;
             font-weight: 400;
         }
 
-        /* Responsive Title Size */
         @media (max-width: 768px) {
             .title-font { font-size: 3rem; }
         }
@@ -60,8 +58,8 @@
 </head>
 <body id="appBody" class="bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900 text-slate-800 antialiased flex flex-col relative overflow-x-hidden transition-all duration-700 ease-in-out">
 
-    <!-- Custom Modal -->
-    <div id="confirmModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+    <!-- Custom Modal (Z-index 90) -->
+    <div id="confirmModal" class="fixed inset-0 z-[90] hidden flex items-center justify-center">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0" id="confirmOverlay" onclick="closeConfirmModal()"></div>
         <div class="relative bg-white/95 backdrop-blur-xl border border-white shadow-2xl rounded-[2rem] p-8 w-11/12 max-w-sm transform scale-95 opacity-0 transition-all duration-300 ease-out" id="confirmContent">
             <div class="text-center">
@@ -78,14 +76,14 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[90] flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
+    <!-- Toast Notification (Z-index 100) -->
+    <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4 text-center"></div>
 
-    <!-- Sidebar Overlay -->
-    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <!-- Sidebar Overlay (Z-index 70) -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[70] hidden opacity-0 transition-opacity duration-300"></div>
 
-    <!-- Sidebar -->
-    <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white/95 backdrop-blur-2xl shadow-2xl border-l border-white/50 z-50 transform translate-x-full transition-transform duration-400 ease-out flex flex-col">
+    <!-- Sidebar (Z-index 80 - Now above Header) -->
+    <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white/95 backdrop-blur-2xl shadow-2xl border-l border-white/50 z-[80] transform translate-x-full transition-transform duration-400 ease-out flex flex-col">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
             <h2 class="font-extrabold text-slate-800 text-lg"><i class="fas fa-layer-group mr-2 text-indigo-500"></i> হিস্ট্রি</h2>
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-rose-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50">
@@ -97,18 +95,18 @@
         </div>
     </div>
 
-    <!-- Header & Corner Theme Switcher -->
-    <header class="pt-6 pb-4 relative z-[60]">
+    <!-- Header (Z-index 30) -->
+    <header class="pt-6 pb-4 relative z-30">
         <div class="container mx-auto px-4 flex items-center justify-between">
             
-            <!-- Always Visible Theme Switcher Icon -->
+            <!-- Theme Switcher -->
             <div class="relative">
                 <button onclick="toggleThemeMenu()" class="w-12 h-12 rounded-2xl shadow-lg bg-slate-800 text-white hover:bg-slate-700 transition-colors flex items-center justify-center text-xl border-2 border-white/20">
                     <i class="fas fa-palette"></i>
                 </button>
                 
-                <!-- Theme Dropdown Menu -->
-                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white">
+                <!-- Theme Dropdown Menu (Z-index 60) -->
+                <div id="themeMenu" class="absolute top-14 left-0 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex flex-col gap-3 hidden transition-all origin-top-left scale-95 opacity-0 border border-white z-[60]">
                     <button onclick="setTheme('purple')" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-900 to-fuchsia-900 shadow-md border-2 border-white theme-btn"></button>
                     <button onclick="setTheme('ocean')" class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-900 to-teal-900 shadow-md border-2 border-white theme-btn"></button>
                     <button onclick="setTheme('forest')" class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-900 to-green-900 shadow-md border-2 border-white theme-btn"></button>
@@ -118,7 +116,7 @@
             </div>
             
             <div class="text-center flex-1">
-                <!-- Armelie Alternative Elegant Title -->
+                <!-- Stylish Premium Title -->
                 <h1 class="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] title-font">Toxic Mail</h1>
             </div>
             
@@ -234,6 +232,18 @@
             </div>
         </div>
     </main>
+
+    <!-- Beautiful Footer -->
+    <footer class="mt-auto pb-6 pt-4 text-center relative z-10 w-full">
+        <div class="glass-btn inline-block px-8 py-3.5 rounded-3xl shadow-lg bg-white/10 border-white/20 text-white backdrop-blur-md transition-all hover:bg-white/20">
+            <p class="text-[13px] md:text-sm font-semibold tracking-wide drop-shadow-md">© 2026 Toxic Mail. All rights reserved.</p>
+            <p class="text-[11px] md:text-xs mt-1.5 opacity-90 font-medium tracking-wide">
+                Crafted with <i class="fas fa-heart text-rose-400 mx-1 animate-pulse"></i> by 
+                <!-- আপনার নাম বা ব্র্যান্ডের নাম নিচে দিন -->
+                <span class="font-extrabold text-white drop-shadow-lg ml-0.5">আপনার নাম</span>
+            </p>
+        </div>
+    </footer>
 
     <script>
         const API = {
