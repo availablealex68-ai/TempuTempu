@@ -240,7 +240,7 @@
             <p class="text-[11px] md:text-xs mt-1.5 opacity-90 font-medium tracking-wide">
                 Crafted with <i class="fas fa-heart text-rose-400 mx-1 animate-pulse"></i> by 
                 <!-- Your Name goes here -->
-                <span class="font-extrabold text-white drop-shadow-lg ml-0.5">Md Walid</span>
+                <span class="font-extrabold text-white drop-shadow-lg ml-0.5">MD WALID</span>
             </p>
         </div>
     </footer>
@@ -723,17 +723,21 @@
             return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
 
-        // Relative time function (e.g., 5 sec ago, 1 min ago)
+        // Fixed Timezone issue for Real-time relative time
         function timeAgo(dateString) {
             if (!dateString) return '';
             try {
-                const date = new Date(dateString.replace(' ', 'T'));
+                // Ensure dateString is treated as UTC ('Z') to fix the 6hr timezone gap
+                let isoString = dateString.replace(' ', 'T');
+                if (!isoString.endsWith('Z')) isoString += 'Z';
+                
+                const date = new Date(isoString);
                 if (isNaN(date.getTime())) return dateString;
                 
                 const now = new Date();
                 const diffInSeconds = Math.floor((now - date) / 1000);
                 
-                if (diffInSeconds < 1) return "Just now";
+                if (diffInSeconds < 0) return "Just now"; // Prevents future times
                 if (diffInSeconds < 60) return `${diffInSeconds} sec ago`;
                 
                 const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -747,11 +751,13 @@
             } catch(e) { return dateString; }
         }
         
-        // For Sidebar History display (Keeps absolute time)
+        // Fixed Timezone for Sidebar History display
         function formatTimeOnly(dateString) {
             if (!dateString) return '';
             try {
-                const d = new Date(dateString.replace(' ', 'T'));
+                let isoString = dateString.replace(' ', 'T');
+                if (!isoString.endsWith('Z')) isoString += 'Z';
+                const d = new Date(isoString);
                 if (isNaN(d.getTime())) return dateString;
                 return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
             } catch(e) { return dateString; }
