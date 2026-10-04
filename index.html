@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,11 +66,11 @@
                 <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-rose-100 to-red-50 text-rose-500 flex items-center justify-center mx-auto mb-5 shadow-inner border border-white">
                     <i class="fas fa-trash-alt text-3xl drop-shadow-sm"></i>
                 </div>
-                <h3 class="text-2xl font-extrabold text-slate-800 mb-2">মেইলবক্স ডিলিট?</h3>
-                <p class="text-sm text-slate-500 mb-8 px-2 leading-relaxed">আপনি কি নিশ্চিত যে এই মেইলবক্সটি ডিলিট করতে চান?</p>
+                <h3 class="text-2xl font-extrabold text-slate-800 mb-2">Delete Mailbox?</h3>
+                <p class="text-sm text-slate-500 mb-8 px-2 leading-relaxed">Are you sure you want to delete this mailbox? This action cannot be undone.</p>
                 <div class="flex gap-4">
-                    <button onclick="closeConfirmModal()" class="flex-1 glass-btn hover:bg-slate-50 text-slate-600 font-bold py-3.5 rounded-2xl transition-all shadow-sm">বাতিল</button>
-                    <button onclick="confirmDeleteAction()" class="flex-1 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-rose-200 transition-all transform hover:-translate-y-0.5">ডিলিট</button>
+                    <button onclick="closeConfirmModal()" class="flex-1 glass-btn hover:bg-slate-50 text-slate-600 font-bold py-3.5 rounded-2xl transition-all shadow-sm">Cancel</button>
+                    <button onclick="confirmDeleteAction()" class="flex-1 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-rose-200 transition-all transform hover:-translate-y-0.5">Delete</button>
                 </div>
             </div>
         </div>
@@ -82,10 +82,10 @@
     <!-- Sidebar Overlay (Z-index 70) -->
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[70] hidden opacity-0 transition-opacity duration-300"></div>
 
-    <!-- Sidebar (Z-index 80 - Now above Header) -->
+    <!-- Sidebar (Z-index 80) -->
     <div id="sidebar" class="fixed inset-y-0 right-0 w-72 bg-white/95 backdrop-blur-2xl shadow-2xl border-l border-white/50 z-[80] transform translate-x-full transition-transform duration-400 ease-out flex flex-col">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h2 class="font-extrabold text-slate-800 text-lg"><i class="fas fa-layer-group mr-2 text-indigo-500"></i> হিস্ট্রি</h2>
+            <h2 class="font-extrabold text-slate-800 text-lg"><i class="fas fa-history mr-2 text-indigo-500"></i> History</h2>
             <button onclick="toggleSidebar()" class="text-slate-400 hover:text-rose-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50">
                 <i class="fas fa-times"></i>
             </button>
@@ -116,7 +116,6 @@
             </div>
             
             <div class="text-center flex-1">
-                <!-- Stylish Premium Title -->
                 <h1 class="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] title-font">Toxic Mail</h1>
             </div>
             
@@ -137,17 +136,17 @@
                     <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
                     <div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
                 </div>
-                <p class="text-slate-700 font-bold mt-4 tracking-wide">অপেক্ষা করুন...</p>
+                <p class="text-slate-700 font-bold mt-4 tracking-wide">Please wait...</p>
             </div>
 
-            <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">আপনার বর্তমান ঠিকানা</p>
+            <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Your Current Address</p>
             
             <div class="flex flex-col md:flex-row items-center justify-center gap-3 glass-btn p-3 pl-6 rounded-full shadow-sm mb-6 max-w-2xl mx-auto">
                 <span id="emailAddress" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full md:w-auto flex-1 text-center md:text-left">---</span>
                 
                 <div class="flex items-center gap-2 w-full md:w-auto justify-center">
                     <button onclick="copyEmail()" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-full transition-all shadow-md font-semibold text-sm flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-copy mr-2"></i> কপি
+                        <i class="fas fa-copy mr-2"></i> Copy
                     </button>
                     <button onclick="generateNewMailbox()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-full transition-all shadow-md font-bold text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-plus mr-1.5"></i> Get Mail
@@ -156,11 +155,12 @@
             </div>
             
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-sm mb-2">
-                <div class="flex items-center text-slate-700 font-semibold glass-btn px-5 py-2 rounded-full">
-                    <i class="fas fa-stopwatch mr-2 text-indigo-600"></i> মেয়াদ: <span id="countdown" class="ml-1 tracking-wider font-bold">00:00:00</span>
+                <div class="flex items-center text-slate-700 font-semibold glass-btn px-5 py-2.5 rounded-full">
+                    <i class="fas fa-stopwatch mr-2 text-indigo-600"></i> Expires in: <span id="countdown" class="ml-1 tracking-wider font-bold">00:00:00</span>
                 </div>
-                <button onclick="triggerDelete(currentEmail)" class="text-slate-500 hover:text-rose-500 font-bold flex items-center transition-colors px-4 py-2 rounded-full hover:bg-slate-100">
-                    <i class="fas fa-trash-alt mr-2"></i> মেইলবক্স মুছুন
+                <!-- RED Delete Button -->
+                <button onclick="triggerDelete(currentEmail)" class="bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold flex items-center transition-all px-5 py-2.5 rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i class="fas fa-trash-alt mr-2"></i> Delete Mailbox
                 </button>
             </div>
         </div>
@@ -172,10 +172,10 @@
                     <span class="w-10 h-10 rounded-full glass-btn text-indigo-600 flex items-center justify-center mr-3 shadow-sm">
                         <i class="fas fa-inbox text-lg"></i>
                     </span>
-                    ইনবক্স
+                    Inbox
                 </h2>
                 <div id="pollingIndicator" class="text-xs font-bold text-indigo-600 glass-btn px-4 py-2 rounded-full flex items-center hidden shadow-sm">
-                    <i class="fas fa-circle-notch fa-spin mr-2"></i> সিঙ্ক হচ্ছে...
+                    <i class="fas fa-circle-notch fa-spin mr-2"></i> Syncing...
                 </div>
             </div>
 
@@ -186,7 +186,7 @@
                         <button onclick="closeEmailDetail()" class="w-10 h-10 rounded-full glass-btn text-slate-700 hover:text-indigo-600 flex items-center justify-center transition-colors">
                             <i class="fas fa-arrow-left"></i>
                         </button>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">মেইল ভিউ</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Email View</span>
                         <div class="w-10"></div>
                     </div>
                     
@@ -199,7 +199,7 @@
                                 <div class="font-bold text-slate-800 truncate text-base" id="detailSender"></div>
                                 <div class="text-xs text-slate-500 truncate mt-0.5 font-medium">To: <span id="detailRecipient"></span></div>
                             </div>
-                            <div class="text-xs font-bold text-slate-500 glass-btn px-3 py-1.5 rounded-full" id="detailTime"></div>
+                            <div class="text-xs font-bold text-slate-500 glass-btn px-3 py-1.5 rounded-full time-ago-text" id="detailTime" data-timestamp=""></div>
                         </div>
 
                         <!-- Expanded OTP inside Detail View -->
@@ -224,8 +224,8 @@
                         <div class="w-24 h-24 glass-btn bg-white/50 rounded-full shadow-sm flex items-center justify-center mb-6">
                             <i class="fas fa-envelope-open-text text-4xl text-slate-400"></i>
                         </div>
-                        <p class="font-extrabold text-xl text-slate-700 mb-2">ইনবক্স খালি</p>
-                        <p class="text-sm font-medium text-slate-500">এখানে আপনার নতুন ইমেইলগুলো দেখা যাবে।</p>
+                        <p class="font-extrabold text-xl text-slate-700 mb-2">Inbox is Empty</p>
+                        <p class="text-sm font-medium text-slate-500">Your new emails will appear here.</p>
                     </div>
                     <ul id="emailItems" class="divide-y divide-slate-200/50 hidden"></ul>
                 </div>
@@ -239,8 +239,8 @@
             <p class="text-[13px] md:text-sm font-semibold tracking-wide drop-shadow-md">© 2026 Toxic Mail. All rights reserved.</p>
             <p class="text-[11px] md:text-xs mt-1.5 opacity-90 font-medium tracking-wide">
                 Crafted with <i class="fas fa-heart text-rose-400 mx-1 animate-pulse"></i> by 
-                <!-- আপনার নাম বা ব্র্যান্ডের নাম নিচে দিন -->
-                <span class="font-extrabold text-white drop-shadow-lg ml-0.5">Md Walid</span>
+                <!-- Your Name goes here -->
+                <span class="font-extrabold text-white drop-shadow-lg ml-0.5">Your Name</span>
             </p>
         </div>
     </footer>
@@ -326,6 +326,14 @@
             const savedTheme = localStorage.getItem('taskesy_theme_key') || 'purple';
             setTheme(savedTheme);
             initApp();
+            
+            // Start updating relative times automatically
+            setInterval(() => {
+                document.querySelectorAll('.time-ago-text').forEach(el => {
+                    const rawTime = el.getAttribute('data-timestamp');
+                    if (rawTime) el.innerText = timeAgo(rawTime);
+                });
+            }, 5000); // Updates every 5 seconds
         });
 
         function showToast(message, type = 'success') {
@@ -380,10 +388,10 @@
                 const sidebar = document.getElementById('sidebar');
                 if(!sidebar.classList.contains('translate-x-full')) toggleSidebar();
                 
-                showToast("নতুন মেইলবক্স তৈরি হয়েছে!");
+                showToast("New mailbox created!");
                 switchAccount(response.address);
             } else {
-                showToast("ইমেইল তৈরি করতে সমস্যা হয়েছে!", 'error');
+                showToast("Failed to create email!", 'error');
                 document.getElementById('emailAddress').innerText = "Error";
                 showLoading(false);
             }
@@ -453,20 +461,20 @@
 
         async function copyEmail() {
             if (!currentEmail || currentEmail === 'Error') return;
-            try { await navigator.clipboard.writeText(currentEmail); showToast("ইমেইল ঠিকানা কপি করা হয়েছে!"); } 
-            catch (err) { showToast("কপি করতে সমস্যা হয়েছে", 'error'); }
+            try { await navigator.clipboard.writeText(currentEmail); showToast("Email address copied!"); } 
+            catch (err) { showToast("Failed to copy", 'error'); }
         }
 
         async function copyOTP() {
             if (!currentOTP) return;
-            try { await navigator.clipboard.writeText(currentOTP); showToast("OTP কোড কপি করা হয়েছে!"); } 
-            catch (err) { showToast("কপি করতে সমস্যা হয়েছে", 'error'); }
+            try { await navigator.clipboard.writeText(currentOTP); showToast("OTP copied!"); } 
+            catch (err) { showToast("Failed to copy", 'error'); }
         }
 
         async function copyInlineOTP(otp, event) {
             event.stopPropagation(); 
-            try { await navigator.clipboard.writeText(otp); showToast("OTP কোড কপি করা হয়েছে!"); } 
-            catch (err) { showToast("কপি করতে সমস্যা হয়েছে", 'error'); }
+            try { await navigator.clipboard.writeText(otp); showToast("OTP copied!"); } 
+            catch (err) { showToast("Failed to copy", 'error'); }
         }
 
         function startCountdown() {
@@ -479,7 +487,7 @@
                 const distance = expiresAt - new Date().getTime();
                 if (distance < 0) {
                     clearInterval(countdownInterval);
-                    countdownEl.innerText = "মেয়াদ শেষ";
+                    countdownEl.innerText = "Expired";
                     countdownEl.parentElement.classList.remove('text-slate-700', 'glass-btn');
                     countdownEl.parentElement.classList.add('text-rose-600', 'bg-rose-100');
                     stopPolling();
@@ -517,7 +525,7 @@
                 savedAccounts = savedAccounts.filter(acc => acc.address !== currentEmail);
                 localStorage.setItem('taskesy_accounts', JSON.stringify(savedAccounts));
                 localStorage.removeItem('taskesy_current_email');
-                stopPolling(); showToast("এই মেইলটির মেয়াদ শেষ হয়ে গেছে", "error");
+                stopPolling(); showToast("This mailbox has expired", "error");
             }
             setTimeout(() => document.getElementById('pollingIndicator').classList.add('hidden'), 1000);
         }
@@ -563,7 +571,7 @@
             emailItems.innerHTML = '';
             emails.forEach((email, index) => {
                 const isNew = !seenEmailIds.has(email.id);
-                if(isNew && loadedEmails.length > 0) showToast("নতুন ইমেইল এসেছে!");
+                if(isNew && loadedEmails.length > 0) showToast("New email received!");
                 seenEmailIds.add(email.id);
 
                 const dateStr = email.received_at || email['received at'];
@@ -592,7 +600,7 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-[15px] font-bold text-slate-800 truncate">${escapeHTML(sender)}</span>
-                            <span class="text-xs font-bold text-slate-500 whitespace-nowrap ml-3">${formatDate(dateStr)}</span>
+                            <span class="text-xs font-bold text-slate-500 whitespace-nowrap ml-3 time-ago-text" data-timestamp="${dateStr}">${timeAgo(dateStr)}</span>
                         </div>
                         <p class="text-sm font-medium text-slate-600 truncate mb-1">${escapeHTML(subject)}</p>
                         ${inlineOtpBtn}
@@ -613,7 +621,10 @@
                 document.getElementById('detailSender').innerText = sender;
                 document.getElementById('avatarInitial').innerText = sender.charAt(0).toUpperCase();
                 document.getElementById('detailRecipient').innerText = em.recipient || currentEmail;
-                document.getElementById('detailTime').innerText = formatDate(dateStr);
+                
+                const timeElem = document.getElementById('detailTime');
+                timeElem.setAttribute('data-timestamp', dateStr);
+                timeElem.innerText = timeAgo(dateStr);
                 
                 const bodyText = em.body || '';
                 document.getElementById('detailBody').innerHTML = bodyText ? escapeHTML(bodyText) : '<i>(Empty Message)</i>';
@@ -687,7 +698,7 @@
                     localStorage.removeItem('taskesy_current_email');
                 }
                 
-                showToast("মেইলবক্স মুছে ফেলা হয়েছে");
+                showToast("Mailbox deleted");
                 
                 setTimeout(() => {
                     if (address === currentEmail) {
@@ -702,7 +713,7 @@
                 }, 300);
                 
             } catch (err) {
-                showToast("নেটওয়ার্ক সমস্যা", 'error');
+                showToast("Network error", 'error');
                 if(targetElement) { targetElement.style.transform = 'scale(1)'; targetElement.style.opacity = '1'; }
             }
         }
@@ -712,15 +723,31 @@
             return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
 
-        function formatDate(dateString) {
+        // Relative time function (e.g., 5 sec ago, 1 min ago)
+        function timeAgo(dateString) {
             if (!dateString) return '';
             try {
-                const d = new Date(dateString.replace(' ', 'T'));
-                if (isNaN(d.getTime())) return dateString;
-                return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const date = new Date(dateString.replace(' ', 'T'));
+                if (isNaN(date.getTime())) return dateString;
+                
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - date) / 1000);
+                
+                if (diffInSeconds < 1) return "Just now";
+                if (diffInSeconds < 60) return `${diffInSeconds} sec ago`;
+                
+                const diffInMinutes = Math.floor(diffInSeconds / 60);
+                if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+                
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) return `${diffInHours} hr${diffInHours > 1 ? 's' : ''} ago`;
+                
+                const diffInDays = Math.floor(diffInHours / 24);
+                return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
             } catch(e) { return dateString; }
         }
         
+        // For Sidebar History display (Keeps absolute time)
         function formatTimeOnly(dateString) {
             if (!dateString) return '';
             try {
